@@ -1,4 +1,5 @@
-﻿using GeradorDeTiagoes.Domain.Shared;
+﻿using GeradorDeTiagoes.Domain.DisciplineModule;
+using GeradorDeTiagoes.Domain.Shared;
 using System;
 using System.Collections.Generic;
 
@@ -12,9 +13,9 @@ namespace GeradorDeTiagoes.Domain.Entities
 
         public Guid DisciplineId { get; set; }
 
-        //public Discipline Discipline { get; set; }
+        public Discipline Discipline { get; set; }
 
-        //public List<Question> Questions { get; set; } = new();
+        public List<Question> Questions { get; set; } = new();
 
         public Subject()
         {
