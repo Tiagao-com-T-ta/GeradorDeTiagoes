@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GeradorDeTiagoes.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +14,13 @@ namespace GeradorDeTiagoes.Structure.Files.Shared
         private string folder = "C:\\temp";
         private string file = "Gerador-Tiagoes-Data.json";
 
-        // declarar aqui
+        public List<Test> Tests { get; set; }
+        public List<Subject> Subjects { get; set; }
 
         public DataContext()
         {
-            // inicializar aqui
+            Tests = new List<Test>();
+            Subjects = new List<Subject>;
         }
 
         public DataContext(bool loadData) : this()
@@ -65,7 +68,8 @@ namespace GeradorDeTiagoes.Structure.Files.Shared
 
             if (dataContext == null) return;
 
-            //carregar aqui
+            Tests = dataContext.Tests;
+            Subjects = dataContext.Subjects;
         }
     }
 }
