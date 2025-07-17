@@ -1,4 +1,5 @@
 ﻿using GeradorDeTiagoes.Domain.DisciplineModule;
+using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.Domain.Shared;
 using System;
 using System.Collections.Generic;
