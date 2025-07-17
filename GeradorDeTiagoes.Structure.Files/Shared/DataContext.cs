@@ -1,5 +1,6 @@
 ﻿using GeradorDeTiagoes.Domain.DisciplineModule;
 using GeradorDeTiagoes.Domain.Entities;
+using GeradorDeTiagoes.Domain.QuestionModule;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +20,15 @@ namespace GeradorDeTiagoes.Structure.Files.Shared
         public List<Discipline> Disciplines { get; set; }
         public List<Test> Tests { get; set; }
         public List<Subject> Subjects { get; set; }
+        public List<Question> Questions { get; set; }
 
         public DataContext()
         {
             // inicializar aqui
             Disciplines = new List<Discipline>();
             Tests = new List<Test>();
-            Subjects = new List<Subject>;
+            Subjects = new List<Subject>();
+            Questions = new List<Question>();
         }
 
         public DataContext(bool loadData) : this()
@@ -77,6 +80,7 @@ namespace GeradorDeTiagoes.Structure.Files.Shared
             Disciplines = dataContext.Disciplines;
             Tests = dataContext.Tests;
             Subjects = dataContext.Subjects;
+            Questions = dataContext.Questions;
         }
     }
 }
