@@ -1,4 +1,5 @@
-﻿using GeradorDeTiagoes.Domain.Entities;
+﻿using GeradorDeTiagoes.Domain.DisciplineModule;
+using GeradorDeTiagoes.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,15 @@ namespace GeradorDeTiagoes.Structure.Files.Shared
         private string folder = "C:\\temp";
         private string file = "Gerador-Tiagoes-Data.json";
 
+        // declarar aqui
+        public List<Discipline> Disciplines { get; set; }
         public List<Test> Tests { get; set; }
         public List<Subject> Subjects { get; set; }
 
         public DataContext()
         {
+            // inicializar aqui
+            Disciplines = new List<Discipline>();
             Tests = new List<Test>();
             Subjects = new List<Subject>;
         }
@@ -68,6 +73,8 @@ namespace GeradorDeTiagoes.Structure.Files.Shared
 
             if (dataContext == null) return;
 
+            //carregar aqui
+            Disciplines = dataContext.Disciplines;
             Tests = dataContext.Tests;
             Subjects = dataContext.Subjects;
         }
