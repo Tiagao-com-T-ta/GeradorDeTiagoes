@@ -21,6 +21,7 @@ namespace GeradorDeTiagoes.Domain.QuestionModule
         
         public Question(string text, Subject subject, List<Alternative> alternatives)
         {
+            Id = Guid.NewGuid();
             Text = text;
             Subject = subject;
             Alternatives = alternatives;

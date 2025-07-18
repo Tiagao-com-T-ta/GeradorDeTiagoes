@@ -15,6 +15,7 @@ namespace GeradorDeTiagoes.Domain.DisciplineModule
 
         public Discipline(string name)
         {
+            Id = Guid.NewGuid();
             Name = name;
         }   
 

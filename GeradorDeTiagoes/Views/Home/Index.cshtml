@@ -39,6 +39,37 @@
                 </div>
             </div>
         </div>
+        <div class="row justify-content-center g-4">
+            <!-- Disciplinas -->
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-circle bg-primary mb-4 mx-auto">
+                            <i class="bi bi-list-ul text-white fs-3"></i>
+                        </div>
+                        <h3 class="h5">Listar Disciplinas</h3>
+                        <p class="text-muted mb-4">Veja todas as matérias cadastradas</p>
+                        <a asp-controller="Discipline" asp-action="Index" class="btn btn-outline-primary stretched-link">
+                            Acessar Listagem
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-circle bg-success mb-4 mx-auto">
+                            <i class="bi bi-plus-lg text-white fs-3"></i>
+                        </div>
+                        <h3 class="h5">Cadastrar Matéria</h3>
+                        <p class="text-muted mb-4">Adicione uma nova matéria ao sistema</p>
+                        <a asp-controller="Subject" asp-action="Create" class="btn btn-outline-success stretched-link">
+                            Novo Cadastro
+                        </a>
+                    </div>
+                </div>
+            </div>
 
         <!-- Testes -->
         <div class="col-md-3">
