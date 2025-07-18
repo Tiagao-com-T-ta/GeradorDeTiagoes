@@ -21,25 +21,30 @@
                 }
 
                 <div class="row my-4">
-                    <div class="mt-2">
-                        <label class="control-label"><strong>Nome:</strong> @Model.Name</label>
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Nome:</strong></label>
+                        <p class="form-control-plaintext">@Model.Name</p>
                     </div>
 
-                    <div class="mt-2">
-                        <label class="control-label"><strong>Série:</strong> @Model.GradeLevel</label>
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Série:</strong></label>
+                        <p class="form-control-plaintext">@Model.GradeLevel</p>
                     </div>
 
-                    <div class="mt-2">
-                        <label class="control-label"><strong>Disciplina:</strong> @Model.DisciplineName</label>
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Disciplina:</strong></label>
+                        <p class="form-control-plaintext">@Model.DisciplineName</p>
                     </div>
 
-                    <div class="mt-2">
-                        <label class="control-label"><strong>Questões vinculadas:</strong> @Model.QuestionCount</label>
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Questões vinculadas:</strong></label>
+                        <p class="form-control-plaintext">@Model.QuestionCount</p>
                     </div>
                 </div>
 
                 <div class="form-group d-flex align-items-center justify-content-end gap-3 mt-5">
-                    <a href="/subject">Voltar para a listagem</a>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+                    <a href="/subject" class="btn btn-secondary">Voltar</a>
                 </div>
             </div>
         </div>

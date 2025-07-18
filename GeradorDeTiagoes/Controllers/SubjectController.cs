@@ -79,8 +79,17 @@ public class SubjectController : Controller
         if (subject == null)
             return NotFound();
 
-        var viewModel = subject.ToFormViewModel();
-        viewModel = FillFormViewModel(viewModel);
+        ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
+        ViewBag.GradeLevels = GetGradeLevels();
+
+        var viewModel = new SubjectFormViewModel
+        {
+            Id = subject.Id,
+            Name = subject.Name,
+            GradeLevel = subject.GradeLevel,
+            DisciplineId = subject.DisciplineId
+        };
+
         return View(viewModel);
     }
 
@@ -88,46 +97,21 @@ public class SubjectController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Edit(Guid id, SubjectFormViewModel viewModel)
     {
-        if (!ModelState.IsValid)
-        {
-            viewModel = FillFormViewModel(viewModel);
-            return View(viewModel);
-        }
-
         var subject = subjectRepository.GetRegisterById(id);
+
         if (subject == null)
             return NotFound();
 
-        var duplicateSubject = subjectRepository.GetAllRegisters()
-            .FirstOrDefault(s => s.Name.Equals(viewModel.Name, StringComparison.OrdinalIgnoreCase) && s.Id != id);
-
-        if (duplicateSubject != null)
-        {
-            ModelState.AddModelError("Name", "Já existe uma matéria com este nome.");
-            viewModel = FillFormViewModel(viewModel);
-            return View(viewModel);
-        }
-
-        var discipline = disciplineRepository.GetRegisterById(viewModel.DisciplineId);
-        if (discipline == null)
-        {
-            ModelState.AddModelError("DisciplineId", "Disciplina inválida.");
-            viewModel = FillFormViewModel(viewModel);
-            return View(viewModel);
-        }
-
         var updatedSubject = new Subject
         {
-            Id = viewModel.Id,
+            Id = id,
             Name = viewModel.Name,
             GradeLevel = viewModel.GradeLevel,
-            DisciplineId = discipline.Id,
-            Discipline = discipline
+            DisciplineId = viewModel.DisciplineId,
+            Discipline = disciplineRepository.GetRegisterById(viewModel.DisciplineId)
         };
 
-        subject.Update(updatedSubject);
-        subjectRepository.Edit(id, subject);
-
+        subjectRepository.Edit(id, updatedSubject);
         return RedirectToAction(nameof(Index));
     }
 
@@ -146,5 +130,26 @@ public class SubjectController : Controller
             "6º Ano", "7º Ano", "8º Ano", "9º Ano",
             "1ª Série EM", "2ª Série EM", "3ª Série EM"
         };
+    }
+
+    [HttpGet("details/{id:guid}")]
+    public IActionResult Details(Guid id)
+    {
+        var subject = subjectRepository.GetRegisterById(id);
+        if (subject == null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new SubjectDetailsViewModel(
+            subject.Id,
+            subject.Name,
+            subject.GradeLevel,
+            subject.DisciplineId,
+            subject.Discipline?.Name ?? "Não informado",
+            subject.Questions?.Count ?? 0
+        );
+
+        return View(viewModel);
     }
 }

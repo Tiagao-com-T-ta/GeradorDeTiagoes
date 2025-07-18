@@ -18,29 +18,50 @@
     @foreach (var subject in Model.Subjects)
     {
         <div class="col-12 col-md-3 coluna-card">
-            <div class="card border-0" style="height: 235px;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-baseline mb-2">
-                        <h5 class="card-title">@subject.Name</h5>
-                        <span class="badge rounded-pill text-bg-secondary px-3 py-2">@subject.GradeLevel</span>
+            <a asp-action="Details" asp-route-id="@subject.Id" class="text-decoration-none">
+                <div class="card border-0 hover-shadow" style="height: 235px; cursor: pointer;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-baseline mb-2">
+                            <h5 class="card-title">@subject.Name</h5>
+                            <span class="badge rounded-pill text-bg-secondary px-3 py-2">@subject.GradeLevel</span>
+                        </div>
+
+                        <p class="card-text mb-1"><span class="fw-semibold">Disciplina:</span> @subject.DisciplineName</p>
+                        <p class="card-text mb-1"><span class="fw-semibold">Questões:</span> @subject.QuestionCount</p>
                     </div>
 
-                    <p class="card-text mb-1"><span class="fw-semibold">Disciplina:</span> @subject.DisciplineName</p>
-                    <p class="card-text mb-1"><span class="fw-semibold">Questões:</span> @subject.QuestionCount</p>
-                </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <span class="d-flex gap-1 justify-content-end">
+                            <a title="Editar" asp-action="Edit" asp-route-id="@subject.Id"
+                               class="btn btn-primary rounded-circle opcao-card"
+                               onclick="event.stopPropagation()">
+                                <i class="bi bi-pencil"></i>
+                            </a>
 
-                <div class="card-footer bg-transparent border-0">
-                    <span class="d-flex gap-1 justify-content-end">
-                        <a title="Editar" asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-primary rounded-circle opcao-card">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-
-                        <a title="Excluir" asp-action="Delete" asp-route-id="@subject.Id" class="btn btn-danger rounded-circle opcao-card">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </span>
+                            <a title="Excluir" asp-action="Delete" asp-route-id="@subject.Id"
+                               class="btn btn-danger rounded-circle opcao-card"
+                               onclick="event.stopPropagation()">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     }
 </div>
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .opcao-card {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
