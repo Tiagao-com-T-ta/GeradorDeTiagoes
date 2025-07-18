@@ -1,6 +1,5 @@
 ﻿using GeradorDeTiagoes.Domain.DisciplineModule;
 using GeradorDeTiagoes.Domain.Shared;
-using GeradorDeTiagoes.Structure.Files.DisciplineModule;
 using GeradorDeTiagoes.Structure.Files.Shared;
 using GeradorDeTiagoes.WebApp.Extensions;
 using GeradorDeTiagoes.WebApp.Models;
@@ -14,11 +13,10 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         private readonly DataContext dataContext;
         private readonly IRepository<Discipline> disciplineRepository;
 
-        public DisciplineController()
+        public DisciplineController(DataContext dataContext, IRepository<Discipline> disciplineRepository)
         {
-            dataContext = new DataContext(true);
-            disciplineRepository = new DisciplineRepositoryFile(dataContext);
-
+            this.dataContext = dataContext;
+            this.disciplineRepository = disciplineRepository;
         }
 
         public IActionResult Index()

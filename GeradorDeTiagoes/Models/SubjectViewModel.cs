@@ -1,5 +1,6 @@
 ﻿using GeradorDeTiagoes.Domain.Entities;
 using GeradorDeTiagoes.WebApp.Extensions;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,6 @@ public class SubjectFormViewModel
     public Guid Id { get; set; }
 
     [Required(ErrorMessage = "O campo 'Nome' é obrigatório.")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "O nome deve ter entre 2 e 100 caracteres.")]
     public string Name { get; set; }
 
     [Required(ErrorMessage = "O campo 'Série' é obrigatório.")]
@@ -19,6 +19,10 @@ public class SubjectFormViewModel
 
     [Required(ErrorMessage = "O campo 'Disciplina' é obrigatório.")]
     public Guid DisciplineId { get; set; }
+
+    public SelectList Disciplines { get; set; }
+
+    public List<string> GradeLevels { get; set; }
 }
 
 public class SubjectDetailsViewModel
@@ -55,4 +59,9 @@ public class SubjectListViewModel
     {
         Subjects = subjects.ConvertAll(s => s.ToDetailsViewModel());
     }
+}
+public class DisciplineOptionViewModel
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
 }

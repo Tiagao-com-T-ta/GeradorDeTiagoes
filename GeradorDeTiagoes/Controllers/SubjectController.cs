@@ -1,23 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using GeradorDeTiagoes.Domain.Entities;
 using GeradorDeTiagoes.Domain.Shared;
 using GeradorDeTiagoes.Domain.DisciplineModule;
 using GeradorDeTiagoes.Domain.SubjectsModule;
 using GeradorDeTiagoes.WebApp.ViewModels;
 using GeradorDeTiagoes.WebApp.Extensions;
+using GeradorDeTiagoes.Structure.Files.Shared;
 
 namespace GeradorDeTiagoes.WebApp.Controllers;
 
 [Route("subject")]
 public class SubjectController : Controller
 {
+    private readonly DataContext dataContext;
     private readonly IRepository<Subject> subjectRepository;
     private readonly IRepository<Discipline> disciplineRepository;
 
     public SubjectController(
         IRepository<Subject> subjectRepository,
-        IRepository<Discipline> disciplineRepository)
+        IRepository<Discipline> disciplineRepository,
+        DataContext dataContext)
     {
+        this.dataContext = dataContext;
         this.subjectRepository = subjectRepository;
         this.disciplineRepository = disciplineRepository;
     }
@@ -26,6 +31,12 @@ public class SubjectController : Controller
     public IActionResult Index()
     {
         var subjects = subjectRepository.GetAllRegisters();
+
+        foreach (var subject in subjects)
+        {
+            subject.Discipline = disciplineRepository.GetRegisterById(subject.DisciplineId);
+        }
+
         var viewModel = new SubjectListViewModel(subjects);
         return View(viewModel);
     }
@@ -33,36 +44,31 @@ public class SubjectController : Controller
     [HttpGet("register")]
     public IActionResult Create()
     {
-        ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-        ViewBag.GradeLevels = GetGradeLevels();
-        return View(new SubjectFormViewModel());
+        var disciplinas = disciplineRepository.GetAllRegisters();
+
+        var viewModel = new SubjectFormViewModel
+        {
+            Disciplines = new SelectList(disciplinas, "Id", "Name"),
+            GradeLevels = GetGradeLevels()
+        };
+
+        return View(viewModel);
     }
 
     [HttpPost("register")]
     [ValidateAntiForgeryToken]
     public IActionResult Create(SubjectFormViewModel viewModel)
     {
-        if (!ModelState.IsValid)
+        var subject = new Subject
         {
-            ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-            ViewBag.GradeLevels = GetGradeLevels();
-            return View(viewModel);
-        }
+            Id = Guid.NewGuid(),
+            Name = viewModel.Name,
+            GradeLevel = viewModel.GradeLevel,
+            DisciplineId = viewModel.DisciplineId,
+            Discipline = disciplineRepository.GetRegisterById(viewModel.DisciplineId)
+        };
 
-        var existingSubject = subjectRepository.GetAllRegisters()
-            .FirstOrDefault(s => s.Name.Equals(viewModel.Name, StringComparison.OrdinalIgnoreCase));
-
-        if (existingSubject != null)
-        {
-            ModelState.AddModelError("Name", "Já existe uma matéria com este nome.");
-            ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-            ViewBag.GradeLevels = GetGradeLevels();
-            return View(viewModel);
-        }
-
-        var subject = viewModel.ToEntity();
         subjectRepository.Register(subject);
-
         return RedirectToAction(nameof(Index));
     }
 
@@ -73,9 +79,9 @@ public class SubjectController : Controller
         if (subject == null)
             return NotFound();
 
-        ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-        ViewBag.GradeLevels = GetGradeLevels();
-        return View(subject.ToFormViewModel());
+        var viewModel = subject.ToFormViewModel();
+        viewModel = FillFormViewModel(viewModel);
+        return View(viewModel);
     }
 
     [HttpPost("edit/{id:guid}")]
@@ -84,8 +90,7 @@ public class SubjectController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-            ViewBag.GradeLevels = GetGradeLevels();
+            viewModel = FillFormViewModel(viewModel);
             return View(viewModel);
         }
 
@@ -99,68 +104,43 @@ public class SubjectController : Controller
         if (duplicateSubject != null)
         {
             ModelState.AddModelError("Name", "Já existe uma matéria com este nome.");
-            ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-            ViewBag.GradeLevels = GetGradeLevels();
+            viewModel = FillFormViewModel(viewModel);
             return View(viewModel);
         }
 
-        var updatedSubject = viewModel.ToEntity();
-        subject.Update(updatedSubject);
+        var discipline = disciplineRepository.GetRegisterById(viewModel.DisciplineId);
+        if (discipline == null)
+        {
+            ModelState.AddModelError("DisciplineId", "Disciplina inválida.");
+            viewModel = FillFormViewModel(viewModel);
+            return View(viewModel);
+        }
 
+        var updatedSubject = new Subject
+        {
+            Id = viewModel.Id,
+            Name = viewModel.Name,
+            GradeLevel = viewModel.GradeLevel,
+            DisciplineId = discipline.Id,
+            Discipline = discipline
+        };
+
+        subject.Update(updatedSubject);
         subjectRepository.Edit(id, subject);
 
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet("details/{id:guid}")]
-    public IActionResult Details(Guid id)
+    private SubjectFormViewModel FillFormViewModel(SubjectFormViewModel viewModel)
     {
-        var subject = subjectRepository.GetRegisterById(id);
-        if (subject == null)
-            return NotFound();
-
-        return View(subject.ToDetailsViewModel());
-    }
-
-    [HttpGet("delete/{id:guid}")]
-    public IActionResult Delete(Guid id)
-    {
-        var subject = subjectRepository.GetRegisterById(id);
-        if (subject == null)
-            return NotFound();
-
-        if (subject.Questions.Count > 0)
-        {
-            var detailsVM = subject.ToDetailsViewModel();
-            ViewBag.ErrorMessage = "Não é possível excluir esta matéria pois existem questões vinculadas a ela.";
-            return View("Details", detailsVM);
-        }
-
-        return View(subject.ToDetailsViewModel());
-    }
-
-    [HttpPost("delete/{id:guid}")]
-    [ValidateAntiForgeryToken]
-    public IActionResult DeleteConfirmed(Guid id)
-    {
-        var subject = subjectRepository.GetRegisterById(id);
-        if (subject == null)
-            return NotFound();
-
-        if (subject.Questions.Count > 0)
-        {
-            var detailsVM = subject.ToDetailsViewModel();
-            ViewBag.ErrorMessage = "Não é possível excluir esta matéria pois existem questões vinculadas a ela.";
-            return View("Details", detailsVM);
-        }
-
-        subjectRepository.Delete(id);
-        return RedirectToAction(nameof(Index));
+        viewModel.GradeLevels = GetGradeLevels();
+        viewModel.Disciplines = new SelectList(disciplineRepository.GetAllRegisters(), "Id", "Name");
+        return viewModel;
     }
 
     private List<string> GetGradeLevels()
     {
-        return new List<string>
+        return new()
         {
             "1º Ano", "2º Ano", "3º Ano", "4º Ano", "5º Ano",
             "6º Ano", "7º Ano", "8º Ano", "9º Ano",

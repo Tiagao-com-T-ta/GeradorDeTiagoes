@@ -4,13 +4,18 @@
 @{
     ViewBag.Titulo = "Cadastro de Matéria";
 }
-
+@{
+    var isDisciplineListNull = Model.Disciplines == null;
+    var disciplineCount = Model.Disciplines?.Count() ?? 0;
+}
+<p>Disciplinas nulas? @isDisciplineListNull</p>
+<p>Qtd disciplinas: @disciplineCount</p>
 <hr />
 <div class="row justify-content-center my-5">
     <div class="col-md-8">
         <div class="card rounded-4 border-0">
             <div class="card-body p-md-5">
-                <form asp-action="Create">
+                <form asp-action="Create" method="post">
                     <h3>Cadastro de Matéria</h3>
 
                     @if (ViewData.ModelState["Name"]?.Errors.Count > 0)
@@ -26,16 +31,21 @@
                         <input asp-for="Name" class="form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
+
                     <div class="form-group d-grid gap-2 mt-3">
                         <label asp-for="GradeLevel" class="control-label fs-5">Série:</label>
-                        <select asp-for="GradeLevel" asp-items="@(new SelectList(ViewBag.GradeLevels))" class="form-select"></select>
+                        <select asp-for="GradeLevel" asp-items="@(new SelectList(Model.GradeLevels))" class="form-select"></select>
                         <span asp-validation-for="GradeLevel" class="text-danger"></span>
                     </div>
+
                     <div class="form-group d-grid gap-2 mt-3">
                         <label asp-for="DisciplineId" class="control-label fs-5">Disciplina:</label>
-                        <select asp-for="DisciplineId" asp-items="@(new SelectList(ViewBag.Disciplines, "Id", "Name"))" class="form-select"></select>
+                        <select asp-for="DisciplineId" asp-items="Model.Disciplines" class="form-select">
+                            <option value="">Selecione uma disciplina</option>
+                        </select>
                         <span asp-validation-for="DisciplineId" class="text-danger"></span>
                     </div>
+
                     <div class="form-group d-flex align-items-center justify-content-end gap-3 mt-5">
                         <a href="/subject">Voltar para a listagem</a>
                         <button type="submit" class="btn btn-primary rounded-3 px-5">Confirmar</button>

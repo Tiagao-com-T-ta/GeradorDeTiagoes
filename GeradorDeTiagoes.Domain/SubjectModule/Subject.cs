@@ -36,6 +36,7 @@ namespace GeradorDeTiagoes.Domain.Entities
             Name = editedEntity.Name;
             GradeLevel = editedEntity.GradeLevel;
             DisciplineId = editedEntity.DisciplineId;
+            Discipline = editedEntity.Discipline;
         }
     }
 }
