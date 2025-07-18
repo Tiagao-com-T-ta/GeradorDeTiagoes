@@ -152,4 +152,46 @@ public class SubjectController : Controller
 
         return View(viewModel);
     }
+    [HttpGet("delete/{id:guid}")]
+    public IActionResult Delete(Guid id)
+    {
+        var subject = subjectRepository.GetRegisterById(id);
+        if (subject == null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new SubjectDetailsViewModel(
+            subject.Id,
+            subject.Name,
+            subject.GradeLevel,
+            subject.DisciplineId,
+            subject.Discipline?.Name ?? "Não informado",
+            subject.Questions?.Count ?? 0
+        );
+
+        return View(viewModel);
+    }
+
+    [HttpPost("delete/{id:guid}")]
+    [ValidateAntiForgeryToken]
+    [ActionName("Delete")]
+    public IActionResult DeleteConfirmed(Guid id)
+    {
+        var subject = subjectRepository.GetRegisterById(id);
+        if (subject == null)
+        {
+            return NotFound();
+        }
+
+        if (subject.Questions != null && subject.Questions.Any())
+        {
+            TempData["ErrorMessage"] = "Não é possível excluir a matéria pois existem questões vinculadas a ela.";
+            return RedirectToAction(nameof(Delete), new { id });
+        }
+
+        subjectRepository.Delete(id);
+        return RedirectToAction(nameof(Index));
+    }
+
 }

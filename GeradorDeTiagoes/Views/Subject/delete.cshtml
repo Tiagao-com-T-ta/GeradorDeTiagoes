@@ -5,19 +5,47 @@
     ViewBag.Titulo = "Exclusão de Matéria";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <hr />
 <div class="row justify-content-center my-5">
     <div class="col-md-8">
         <div class="card rounded-4 border-0">
             <div class="card-body p-md-5">
-                <h3>Formulário de Exclusão</h3>
+                <h3>Exclusão de Matéria</h3>
 
-                <p class="mt-4">Você deseja realmente excluir a matéria "@Model.Name"?</p>
+                <div class="row my-4">
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Nome:</strong></label>
+                        <p class="form-control-plaintext">@Model.Name</p>
+                    </div>
 
-                <form asp-action="DeleteConfirmed" asp-route-id="@Model.Id">
-                    <div class="form-group d-flex align-items-center justify-content-end gap-3">
-                        <a href="/subject">Voltar para a listagem</a>
-                        <button type="submit" class="btn btn-danger px-5">Confirmar</button>
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Série:</strong></label>
+                        <p class="form-control-plaintext">@Model.GradeLevel</p>
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Disciplina:</strong></label>
+                        <p class="form-control-plaintext">@Model.DisciplineName</p>
+                    </div>
+
+                    <div class="col-md-6 mt-2">
+                        <label class="form-label"><strong>Questões vinculadas:</strong></label>
+                        <p class="form-control-plaintext">@Model.QuestionCount</p>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" asp-route-id="@Model.Id">
+                    <div class="form-group d-flex align-items-center justify-content-end gap-3 mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-5">Confirmar Exclusão</button>
                     </div>
                 </form>
             </div>
