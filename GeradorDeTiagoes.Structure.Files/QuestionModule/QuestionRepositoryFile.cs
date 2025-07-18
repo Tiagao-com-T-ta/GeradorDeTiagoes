@@ -16,5 +16,19 @@ namespace GeradorDeTiagoes.Structure.Files.QuestionModule
         {
             return dataContext.Questions;
         }
+
+        public List<Question> GetByDiscipline(Guid disciplineId)
+        {
+            return dataContext.Questions
+                .Where(q => q.Subject != null && q.Subject.DisciplineId == disciplineId)
+                .ToList();
+        }
+
+        public List<Question> GetBySubject(Guid subjectId)
+        {
+            return dataContext.Questions
+                .Where(q => q.Subject != null && q.Subject.Id == subjectId)
+                .ToList();
+        }
     }
 }
