@@ -1,4 +1,6 @@
-﻿using GeradorDeTiagoes.Domain.Shared;
+﻿using GeradorDeTiagoes.Domain.DisciplineModule;
+using GeradorDeTiagoes.Domain.QuestionModule;
+using GeradorDeTiagoes.Domain.Shared;
 using System;
 
 namespace GeradorDeTiagoes.Domain.Entities
@@ -16,6 +18,10 @@ namespace GeradorDeTiagoes.Domain.Entities
         public int QuestionCount { get; set; }
 
         public bool IsRecovery { get; set; }
+
+        public Discipline Discipline { get; set; }
+        public Subject Subject { get; set; }
+        public List<Question> Questions { get; set; } = new();
 
         public Test()
         {

@@ -1,0 +1,106 @@
+﻿@using GeradorDeTiagoes.WebApp.ViewModels
+@model TestDuplicateViewModel
+
+@{
+    ViewBag.Titulo = "Duplicar Teste";
+}
+
+<hr />
+<div class="row justify-content-center my-5">
+    <div class="col-md-8">
+        <div class="card rounded-4 border-0">
+            <div class="card-body p-md-5">
+                <form asp-action="Duplicate" asp-route-id="@Model.OriginalTestId">
+                    <h3>Duplicar Teste</h3>
+
+                    @if (ViewData.ModelState["Title"]?.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+                            @ViewData.ModelState["Title"]!.Errors.First().ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <div class="form-group d-grid gap-2 mt-3">
+                        <label asp-for="Title" class="control-label fs-5">Título:</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-grid gap-2 mt-3">
+                        <label asp-for="GradeLevel" class="control-label fs-5">Série:</label>
+                        <select asp-for="GradeLevel" asp-items="@(new SelectList(ViewBag.GradeLevels))" class="form-select"></select>
+                        <span asp-validation-for="GradeLevel" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-grid gap-2 mt-3">
+                        <label asp-for="DisciplineId" class="control-label fs-5">Disciplina:</label>
+                        <select asp-for="DisciplineId" asp-items="@(new SelectList(ViewBag.Disciplines, "Id", "Name"))" class="form-select" id="disciplineSelect">
+                            <option value="">Selecione uma disciplina</option>
+                        </select>
+                        <span asp-validation-for="DisciplineId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-grid gap-2 mt-3" id="subjectGroup">
+                        <label asp-for="SubjectId" class="control-label fs-5">Matéria:</label>
+                        <select asp-for="SubjectId" class="form-select" id="subjectSelect" disabled>
+                            <option value="">Selecione uma matéria</option>
+                        </select>
+                        <span asp-validation-for="SubjectId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-grid gap-2 mt-3">
+                        <label asp-for="QuestionCount" class="control-label fs-5">Quantidade de Questões:</label>
+                        <input asp-for="QuestionCount" class="form-control" type="number" min="1" max="100" />
+                        <span asp-validation-for="QuestionCount" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check form-switch mt-3">
+                        <input asp-for="IsRecovery" class="form-check-input" type="checkbox" id="isRecoveryCheck">
+                        <label class="form-check-label" for="isRecoveryCheck">Prova de Recuperação</label>
+                    </div>
+
+                    <div class="form-group d-flex align-items-center justify-content-end gap-3 mt-5">
+                        <a href="/tests">Voltar para a listagem</a>
+                        <button type="submit" class="btn btn-primary rounded-3 px-5">Duplicar Teste</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $('#disciplineSelect').change(function() {
+                var disciplineId = $(this).val();
+                if (disciplineId) {
+                    $.getJSON('/tests/subjects/' + disciplineId, function(data) {
+                        var items = '<option value="">Selecione uma matéria</option>';
+                        $.each(data, function(i, subject) {
+                            items += '<option value="' + subject.id + '">' + subject.name + '</option>';
+                        });
+                        $('#subjectSelect').html(items).prop('disabled', false);
+                    });
+                } else {
+                    $('#subjectSelect').html('<option value="">Selecione uma matéria</option>').prop('disabled', true);
+                }
+            });
+
+            $('#isRecoveryCheck').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#subjectGroup').hide();
+                    $('#SubjectId').val('');
+                } else {
+                    $('#subjectGroup').show();
+                }
+            });
+
+            if ($('#isRecoveryCheck').is(':checked')) {
+                $('#subjectGroup').hide();
+            }
+        });
+    </script>
+}

@@ -1,0 +1,55 @@
+﻿@using GeradorDeTiagoes.WebApp.ViewModels
+@model TestListViewModel
+
+@{
+    ViewBag.Titulo = "Visualização de Testes";
+}
+
+<div class="d-grid d-lg-flex flex-wrap gap-2 align-items-center">
+    <a class="btn btn-primary px-5" asp-action="Create">
+        <i class="bi bi-plus"></i>
+        Gerar Novo Teste
+    </a>
+</div>
+
+<hr />
+
+<div class="d-flex flex-wrap gap-2">
+    @foreach (var test in Model.Tests)
+    {
+        <div class="col-12 col-md-3 coluna-card">
+            <div class="card border-0" style="height: 235px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <h5 class="card-title">@test.Title</h5>
+                        <span class="badge rounded-pill text-bg-secondary px-3 py-2">@test.GradeLevel</span>
+                    </div>
+
+                    <p class="card-text mb-1"><span class="fw-semibold">Disciplina:</span> @test.DisciplineName</p>
+                    <p class="card-text mb-1"><span class="fw-semibold">Matéria:</span> @(test.IsRecovery ? "Prova de Recuperação" : test.SubjectName)</p>
+                    <p class="card-text mb-1"><span class="fw-semibold">Questões:</span> @test.QuestionsInTest/@test.QuestionCount</p>
+                </div>
+
+                <div class="card-footer bg-transparent border-0">
+                    <span class="d-flex gap-1 justify-content-end">
+                        <a title="Detalhes" asp-action="Details" asp-route-id="@test.Id" class="btn btn-secondary rounded-circle opcao-card">
+                            <i class="bi bi-eye"></i>
+                        </a>
+
+                        <a title="Duplicar" asp-action="Duplicate" asp-route-id="@test.Id" class="btn btn-info rounded-circle opcao-card">
+                            <i class="bi bi-files"></i>
+                        </a>
+
+                        <a title="Gerar PDF" asp-action="GeneratePdf" asp-route-id="@test.Id" class="btn btn-success rounded-circle opcao-card">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </a>
+
+                        <a title="Excluir" asp-action="Delete" asp-route-id="@test.Id" class="btn btn-danger rounded-circle opcao-card">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+</div>

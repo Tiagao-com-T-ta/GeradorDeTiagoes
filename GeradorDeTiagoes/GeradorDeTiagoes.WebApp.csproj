@@ -12,5 +12,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\GeradorDeTiagoes.Domain\GeradorDeTiagoes.Domain.csproj" />
+	  <ProjectReference Include="..\GeradorDeTiagoes.Structure.Files\GeradorDeTiagoes.Structure.Files.csproj" />
 	</ItemGroup>
 </Project>

@@ -9,12 +9,12 @@ using GeradorDeTiagoes.WebApp.Extensions;
 namespace GeradorDeTiagoes.WebApp.Controllers;
 
 [Route("subject")]
-public class SubjectsController : Controller
+public class SubjectController : Controller
 {
     private readonly IRepository<Subject> subjectRepository;
     private readonly IRepository<Discipline> disciplineRepository;
 
-    public SubjectsController(
+    public SubjectController(
         IRepository<Subject> subjectRepository,
         IRepository<Discipline> disciplineRepository)
     {

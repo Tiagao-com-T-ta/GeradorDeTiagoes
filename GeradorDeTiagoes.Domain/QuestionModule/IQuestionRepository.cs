@@ -7,5 +7,9 @@ using System.Threading.Tasks;
 
 namespace GeradorDeTiagoes.Domain.QuestionModule
 {
-    public interface IQuestionRepository : IRepository<Question>;
+    public interface IQuestionRepository : IRepository<Question>
+    {
+        List<Question> GetByDiscipline(Guid disciplineId);
+        List<Question> GetBySubject(Guid subjectId);
+    }
 }

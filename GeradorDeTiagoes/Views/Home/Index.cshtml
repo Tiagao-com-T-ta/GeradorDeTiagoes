@@ -1,8 +1,117 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Sistema de Gestão de Matérias";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Bem-vindo ao Sistema de GERADOR DE TIAGÕES</h1>
+        <p class="lead">Gerencie suas matérias, disciplinas e provas</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- Matérias -->
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-primary mb-4 mx-auto">
+                        <i class="bi bi-list-ul text-white fs-3"></i>
+                    </div>
+                    <h3 class="h5">Listar Matérias</h3>
+                    <p class="text-muted mb-4">Veja todas as matérias cadastradas</p>
+                    <a asp-controller="Subject" asp-action="Index" class="btn btn-outline-primary stretched-link">
+                        Acessar Listagem
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-success mb-4 mx-auto">
+                        <i class="bi bi-plus-lg text-white fs-3"></i>
+                    </div>
+                    <h3 class="h5">Cadastrar Matéria</h3>
+                    <p class="text-muted mb-4">Adicione uma nova matéria ao sistema</p>
+                    <a asp-controller="Subject" asp-action="Create" class="btn btn-outline-success stretched-link">
+                        Novo Cadastro
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testes -->
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-info mb-4 mx-auto">
+                        <i class="bi bi-file-text text-white fs-3"></i>
+                    </div>
+                    <h3 class="h5">Listar Testes</h3>
+                    <p class="text-muted mb-4">Visualize todos os testes gerados</p>
+                    <a asp-controller="Test" asp-action="Index" class="btn btn-outline-info stretched-link">
+                        Acessar Listagem
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body text-center p-4">
+                    <div class="icon-circle bg-warning mb-4 mx-auto">
+                        <i class="bi bi-file-earmark-plus text-white fs-3"></i>
+                    </div>
+                    <h3 class="h5">Gerar Teste</h3>
+                    <p class="text-muted mb-4">Crie um novo teste aleatório</p>
+                    <a asp-controller="Test" asp-action="Create" class="btn btn-outline-warning stretched-link">
+                        Novo Teste
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+</style>
+
+
+        @*  <!-- Buscar por Id para Details, Edit e Delete -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+                <h3 class="h5 mb-4 text-center">Buscar Matéria por ID</h3>
+
+                <form method="get" asp-controller="Subject" asp-action="Details" class="d-flex gap-2 justify-content-center">
+                    <input type="text" name="id" class="form-control" placeholder="Digite o ID da matéria (GUID)" />
+                    <button type="submit" class="btn btn-info">Visualizar Detalhes</button>
+                </form>
+
+                <div class="d-flex gap-2 justify-content-center mt-3">
+                    <form method="get" asp-controller="Subject" asp-action="Edit" class="d-flex gap-2">
+                        <input type="text" name="id" class="form-control" placeholder="Digite o ID para editar" />
+                        <button type="submit" class="btn btn-warning text-white">Editar</button>
+                    </form>
+
+                    <form method="get" asp-controller="Subject" asp-action="Delete" class="d-flex gap-2">
+                        <input type="text" name="id" class="form-control" placeholder="Digite o ID para excluir" />
+                        <button type="submit" class="btn btn-danger">Excluir</button>
+                    </form>
+                </div> *@
