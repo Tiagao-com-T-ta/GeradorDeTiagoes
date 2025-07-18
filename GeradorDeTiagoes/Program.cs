@@ -1,10 +1,16 @@
 using GeradorDeTiagoes.Domain.DisciplineModule;
 using GeradorDeTiagoes.Domain.Entities;
+using GeradorDeTiagoes.Domain.PdfModule;
+using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.Domain.Shared;
 using GeradorDeTiagoes.Domain.SubjectsModule;
+using GeradorDeTiagoes.Domain.TestsModule;
 using GeradorDeTiagoes.Structure.Files.DisciplineModule;
+using GeradorDeTiagoes.Structure.Files.PdfSharpPdfModule;
+using GeradorDeTiagoes.Structure.Files.QuestionModule;
 using GeradorDeTiagoes.Structure.Files.Shared;
 using GeradorDeTiagoes.Structure.Files.SubjectsModule;
+using GeradorDeTiagoes.Structure.Files.TestsModule;
 
 namespace GeradorDeTiagoes
 {
@@ -15,10 +21,11 @@ namespace GeradorDeTiagoes
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddScoped<ISubjectRepository, SubjectRepositoryFile>();
-            builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryFile>();
-            builder.Services.AddScoped<IDisciplineRepository, DisciplineRepositoryFile>();
+            builder.Services.AddScoped<IRepository<Test>, TestRepositoryFile>();
             builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryFile>();
+            builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryFile>();
+            builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryFile>();
+            builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
             builder.Services.AddScoped<DataContext>();
             var app = builder.Build();
 
