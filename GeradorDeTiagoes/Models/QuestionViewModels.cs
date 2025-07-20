@@ -12,6 +12,7 @@ namespace GeradorDeTiagoes.WebApp.Models
         [Required(ErrorMessage = "A matéria é obrigatória.")]
         public Guid SubjectId { get; set; }
         public SelectList Disciplines { get; set; }
+        public Guid DisciplineId { get; set; }
         public SelectList Subjects { get; set; }
 
         [Required(ErrorMessage = "É necessário pelo menos uma alternativa.")]
@@ -21,7 +22,6 @@ namespace GeradorDeTiagoes.WebApp.Models
 
     public class AlternativeViewModel
     {
-        [Required(ErrorMessage = "O texto da alternativa é obrigatório.")]
         public string Text { get; set; }
 
         public bool IsCorrect { get; set; }
@@ -29,9 +29,12 @@ namespace GeradorDeTiagoes.WebApp.Models
 
     public class RegisterQuestionViewModel : QuestionFormViewModel
     {
+        public Guid DisciplineId { get; set; }
         public RegisterQuestionViewModel()
         {
             Alternatives = new List<AlternativeViewModel>();
+            Alternatives.Add(new AlternativeViewModel());
+            Alternatives.Add(new AlternativeViewModel());
         }
     }
 

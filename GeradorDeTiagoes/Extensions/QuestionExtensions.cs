@@ -27,16 +27,17 @@ namespace GeradorDeTiagoes.WebApp.Models.Extensions
         {
             var question = new Question
             {
-                Id = viewModel.Id,
+
+                Id = Guid.NewGuid(),
                 Statement = viewModel.Statement,
                 Subject = subject,
+                SubjectId = subject.Id, 
                 Alternatives = viewModel.Alternatives.Select(a => new Alternative
                 {
                     Text = a.Text,
                     IsCorrect = a.IsCorrect
                 }).ToList()
             };
-
             return question;
         }
 

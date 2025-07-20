@@ -49,9 +49,12 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         }
 
         [HttpGet("register")]
-        public IActionResult Create()
+        public IActionResult Create(Guid? disciplineId = null)
         {
             var viewModel = new RegisterQuestionViewModel();
+
+            if (disciplineId.HasValue)
+                viewModel.DisciplineId = disciplineId.Value;
 
             LoadDisciplinesSubjects(viewModel);
 
@@ -68,9 +71,6 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             {
                 ModelState.AddModelError("", "A questão deve ter entre 2 e 4 alternativas, com exatamente 1 alternativa correta.");
             }
-
-            if (!ModelState.IsValid)
-                return View(viewModel);
 
             var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
             if (subject == null)
@@ -182,26 +182,29 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             var disciplines = disciplineRepository.GetAllRegisters();
             viewModel.Disciplines = new SelectList(disciplines, "Id", "Name");
 
-            if (viewModel.SubjectId != Guid.Empty)
+            if (viewModel is RegisterQuestionViewModel registerVM && registerVM.DisciplineId != Guid.Empty)
+            {
+                var subjects = subjectRepository.GetAllRegisters()
+                    .Where(s => s.DisciplineId == registerVM.DisciplineId)
+                    .ToList();
+
+                viewModel.Subjects = new SelectList(subjects, "Id", "Name");
+            }
+            else if (viewModel.SubjectId != Guid.Empty)
             {
                 var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
                 if (subject != null)
                 {
-                    var subjectsByDiscipline = subjectRepository
-                        .GetAllRegisters()
+                    var subjects = subjectRepository.GetAllRegisters()
                         .Where(s => s.DisciplineId == subject.DisciplineId)
                         .ToList();
 
-                    viewModel.Subjects = new SelectList(subjectsByDiscipline, "Id", "Name");
-                }
-                else
-                {
-                    viewModel.Subjects = new SelectList(new System.Collections.Generic.List<Subject>(), "Id", "Name");
+                    viewModel.Subjects = new SelectList(subjects, "Id", "Name");
                 }
             }
             else
             {
-                viewModel.Subjects = new SelectList(new System.Collections.Generic.List<Subject>(), "Id", "Name");
+                viewModel.Subjects = new SelectList(new List<Subject>(), "Id", "Name");
             }
         }
 
@@ -215,5 +218,18 @@ namespace GeradorDeTiagoes.WebApp.Controllers
 
             return totalCount >= 2 && totalCount <= 4 && correctCount == 1;
         }
+
+        [HttpGet("GetSubjectsByDiscipline")]
+        public IActionResult GetSubjectsByDiscipline(Guid disciplineId)
+        {
+            var subjects = subjectRepository.GetAllRegisters()
+                .Where(s => s.DisciplineId == disciplineId)
+                .Select(s => new { id = s.Id, name = s.Name })
+                .ToList();
+
+            return Json(subjects);
+        }
+
     }
+
 }

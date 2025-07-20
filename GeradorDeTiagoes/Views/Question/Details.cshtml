@@ -1,0 +1,16 @@
+﻿@model GeradorDeTiagoes.WebApp.Models.QuestionDetailsViewModel
+
+<h2>Detalhes da Questão</h2>
+
+<p><strong>Enunciado:</strong> @Model.Statement</p>
+<p><strong>Disciplina:</strong> @Model.DisciplineName</p>
+<p><strong>Matéria:</strong> @Model.SubjectName</p>
+<p><strong>Alternativas:</strong></p>
+<ul>
+    @foreach (var alt in Model.Alternatives)
+    {
+        <li>@alt.Text @(alt.IsCorrect ? "(Correta)" : "")</li>
+    }
+</ul>
+
+<a asp-action="Index" class="btn btn-primary">Voltar</a>

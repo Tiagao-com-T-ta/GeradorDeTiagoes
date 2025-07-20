@@ -26,6 +26,7 @@ namespace GeradorDeTiagoes
             builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryFile>();
             builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryFile>();
             builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryFile>();
+            builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryFile>();
             builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
 
             var app = builder.Build();
