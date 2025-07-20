@@ -2,7 +2,7 @@
 @model EditQuestionViewModel
 
 @{
-    ViewBag.Titulo = "Cadastro de Questões";
+    ViewBag.Titulo = "Edição de Questão";
 }
 
 <hr />
@@ -10,31 +10,69 @@
     <div class="col-md-8">
         <div class="card rounded-4 border-0">
             <div class="card-body p-md-5">
-                <form asp-action="Edit">
+                <form asp-action="Edit" id="questionForm">
                     <h3>Edição de Questão</h3>
 
-                    @if (ViewData.ModelState["Name"]?.Errors.Count > 0)
+                    @if (ViewData.ModelState[""]?.Errors.Count > 0)
                     {
                         <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
-                            @ViewData.ModelState["Name"]!.Errors.First().ErrorMessage
+                            @Html.ValidationSummary()
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
 
+                    <input type="hidden" asp-for="Id" />
+
                     <div class="form-group d-grid gap-2 mt-3">
                         <label asp-for="Statement" class="control-label fs-5">Enunciado:</label>
-                        <input asp-for="Statement" class="form-control" />
+                        <textarea asp-for="Statement" class="form-control" rows="3"></textarea>
                         <span asp-validation-for="Statement" class="text-danger"></span>
                     </div>
+
                     <div class="form-group d-grid gap-2 mt-3">
-                        <label asp-for="SubjectId" class="control-label fs-5">Contato:</label>
-                        <select asp-for="SubjectId" class="form-control" asp-items="Model.Subjects">
-                            <option value="">Nenhum</option>
+                        <label class="control-label fs-5">Disciplina:</label>
+                        <select id="DisciplineId" class="form-control" asp-items="Model.Disciplines">
+                            <option value="">Selecione uma disciplina</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group d-grid gap-2 mt-3">
+                        <label asp-for="SubjectId" class="control-label fs-5">Matéria:</label>
+                        <select asp-for="SubjectId" class="form-control" id="SubjectId">
+                            <option value="">Selecione uma matéria</option>
                         </select>
                         <span asp-validation-for="SubjectId" class="text-danger"></span>
                     </div>
+
+                    <div class="form-group mt-4">
+                        <label class="control-label fs-5">Alternativas:</label>
+                        <div id="alternativesContainer">
+                            @for (int i = 0; i < Model.Alternatives.Count; i++)
+                            {
+                                <div class="alternative-item mb-2 d-flex align-items-center gap-2">
+                                    <input type="hidden" asp-for="Alternatives[i].Id" />
+                                    <input type="hidden" asp-for="Alternatives[i].IsCorrect" class="is-correct-input" value="@Model.Alternatives[i].IsCorrect.ToString().ToLower()" />
+                                    <input asp-for="Alternatives[i].Text" class="form-control alternative-text" placeholder="Texto da alternativa" />
+                                    <button type="button" class="btn @(Model.Alternatives[i].IsCorrect ? "btn-success" : "btn-outline-success") correct-btn"
+                                            onclick="setCorrectAlternative(this)">
+                                        @(Model.Alternatives[i].IsCorrect ? "✓ Correta" : "Correta")
+                                    </button>
+                                    @if (Model.Alternatives.Count > 2)
+                                    {
+                                        <button type="button" class="btn btn-outline-danger remove-btn" onclick="removeAlternative(this)">Remover</button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        @if (Model.Alternatives.Count < 4)
+                        {
+                            <button type="button" class="btn btn-outline-primary mt-2" onclick="addAlternative()">Adicionar Alternativa</button>
+                        }
+                        <span id="alternativesError" class="text-danger"></span>
+                    </div>
+
                     <div class="form-group d-flex align-items-center justify-content-end gap-3 mt-5">
-                        <a href="/questions">Voltar para a listagem</a>
+                        <a asp-action="Index">Voltar para a listagem</a>
                         <button type="submit" class="btn btn-primary rounded-3 px-5">Confirmar</button>
                     </div>
                 </form>
@@ -45,4 +83,133 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            // Initialize with current values
+            var currentDisciplineId = '@Model.DisciplineId';
+            var currentSubjectId = '@Model.SubjectId';
+
+            // Load subjects based on discipline
+            $('#DisciplineId').change(function() {
+                var disciplineId = $(this).val();
+                loadSubjects(disciplineId, currentSubjectId);
+            });
+
+            // Initial load if discipline is already selected
+            if (currentDisciplineId && currentDisciplineId !== '00000000-0000-0000-0000-000000000000') {
+                $('#DisciplineId').val(currentDisciplineId);
+                loadSubjects(currentDisciplineId, currentSubjectId);
+            }
+
+            function loadSubjects(disciplineId, selectSubjectId = null) {
+                var subjectSelect = $('#SubjectId');
+                subjectSelect.empty();
+                subjectSelect.append('<option value="">Selecione uma matéria</option>');
+
+                if (disciplineId) {
+                    $.get('/question/GetSubjectsByDiscipline', { disciplineId: disciplineId }, function(data) {
+                        $.each(data, function(index, item) {
+                            var option = new Option(item.name, item.id);
+                            if (selectSubjectId && item.id === selectSubjectId) {
+                                option.selected = true;
+                            }
+                            subjectSelect.append(option);
+                        });
+
+                        // Ensure the correct subject is selected after loading
+                        if (selectSubjectId) {
+                            subjectSelect.val(selectSubjectId);
+                        }
+                    }).fail(function() {
+                        console.error('Failed to load subjects');
+                    });
+                }
+            }
+
+            // Alternative management functions
+            let alternativeCount = @Model.Alternatives.Count;
+
+            function addAlternative() {
+                if (alternativeCount >= 4) {
+                    alert('Máximo de 4 alternativas atingido');
+                    return;
+                }
+
+                const container = $('#alternativesContainer');
+                const newIndex = alternativeCount;
+
+                const newAlternative = `
+                    <div class="alternative-item mb-2 d-flex align-items-center gap-2">
+                        <input type="hidden" name="Alternatives[${newIndex}].Id" value="00000000-0000-0000-0000-000000000000" />
+                        <input type="hidden" name="Alternatives[${newIndex}].IsCorrect" class="is-correct-input" value="false" />
+                        <input name="Alternatives[${newIndex}].Text" class="form-control alternative-text" placeholder="Texto da alternativa" />
+                        <button type="button" class="btn btn-outline-success correct-btn" onclick="setCorrectAlternative(this)">Correta</button>
+                        <button type="button" class="btn btn-outline-danger remove-btn" onclick="removeAlternative(this)">Remover</button>
+                    </div>
+                `;
+
+                container.append(newAlternative);
+                alternativeCount++;
+            }
+
+            function removeAlternative(button) {
+                if ($('.alternative-item').length <= 2) {
+                    alert('Mínimo de 2 alternativas requerido');
+                    return;
+                }
+
+                $(button).closest('.alternative-item').remove();
+                reindexAlternatives();
+            }
+
+            function setCorrectAlternative(button) {
+                $('.correct-btn').removeClass('btn-success').addClass('btn-outline-success').text('Correta');
+                $('.is-correct-input').val('false');
+
+                $(button).removeClass('btn-outline-success').addClass('btn-success').text('✓ Correta');
+                $(button).siblings('.is-correct-input').val('true');
+            }
+
+            function reindexAlternatives() {
+                alternativeCount = 0;
+                $('.alternative-item').each(function(index) {
+                    $(this).find('input[name$="].Id"]').attr('name', `Alternatives[${index}].Id`);
+                    $(this).find('input[name$="].Text"]').attr('name', `Alternatives[${index}].Text`);
+                    $(this).find('input[name$="].IsCorrect"]').attr('name', `Alternatives[${index}].IsCorrect`);
+                    alternativeCount++;
+                });
+            }
+
+            $('#questionForm').submit(function(e) {
+                const correctCount = $('.is-correct-input[value="true"]').length;
+                const alternativeCount = $('.alternative-item').length;
+
+                if (alternativeCount < 2 || alternativeCount > 4) {
+                    $('#alternativesError').text('A questão deve ter entre 2 e 4 alternativas.');
+                    e.preventDefault();
+                    return;
+                }
+
+                if (correctCount !== 1) {
+                    $('#alternativesError').text('Selecione exatamente uma alternativa correta.');
+                    e.preventDefault();
+                    return;
+                }
+
+                if ($('#SubjectId').val() === '') {
+                    $('#alternativesError').text('Selecione uma matéria.');
+                    e.preventDefault();
+                    return;
+                }
+
+                $('#alternativesError').text('');
+            });
+
+            window.addAlternative = addAlternative;
+            window.removeAlternative = removeAlternative;
+            window.setCorrectAlternative = setCorrectAlternative;
+        });
+    </script>
+}
 }

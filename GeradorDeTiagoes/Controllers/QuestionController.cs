@@ -97,6 +97,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
 
             var viewModel = question.ToEditQuestionViewModel();
 
+            viewModel.SubjectId = question.Subject.Id;
+
             LoadDisciplinesSubjects(viewModel);
 
             return View(viewModel);
@@ -106,29 +108,42 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Guid id, EditQuestionViewModel viewModel)
         {
-            LoadDisciplinesSubjects(viewModel);
-
-            if (!ValidateAlternatives(viewModel.Alternatives))
-            {
-                ModelState.AddModelError("", "A questão deve ter entre 2 e 4 alternativas, com exatamente 1 alternativa correta.");
-            }
-
-            if (!ModelState.IsValid)
-                return View(viewModel);
+            var existingQuestion = questionRepository.GetRegisterById(id);
+            if (existingQuestion == null)
+                return NotFound();
 
             var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
             if (subject == null)
+                return NotFound(); 
+
+            existingQuestion.Statement = viewModel.Statement;
+            existingQuestion.Subject = subject;
+            existingQuestion.SubjectId = subject.Id;
+
+
+            existingQuestion.Alternatives = viewModel.Alternatives
+                .Where(a => !string.IsNullOrWhiteSpace(a.Text))
+                .Select(a => new Alternative
+                {
+                    Id = a.Id != Guid.Empty ? a.Id : Guid.NewGuid(),
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                })
+                .ToList();
+
+            try
             {
-                ModelState.AddModelError("SubjectId", "Matéria inválida.");
+                questionRepository.Edit(id, existingQuestion);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                LoadDisciplinesSubjects(viewModel);
                 return View(viewModel);
             }
-
-            var updatedQuestion = viewModel.ToQuestion(subject);
-
-            questionRepository.Edit(id, updatedQuestion);
-
-            return RedirectToAction(nameof(Index));
         }
+
+
 
         [HttpGet("details/{id:guid}")]
         public IActionResult Details(Guid id)
@@ -157,9 +172,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             return View(viewModel);
         }
 
-        [HttpPost("delete/{id:guid}")]
+        [HttpPost("deleteconfirmed/{id:guid}")]
         [ValidateAntiForgeryToken]
-        [ActionName("Delete")]
         public IActionResult DeleteConfirmed(Guid id)
         {
             var question = questionRepository.GetRegisterById(id);
@@ -179,22 +193,26 @@ namespace GeradorDeTiagoes.WebApp.Controllers
 
         private void LoadDisciplinesSubjects(QuestionFormViewModel viewModel)
         {
+
             var disciplines = disciplineRepository.GetAllRegisters();
             viewModel.Disciplines = new SelectList(disciplines, "Id", "Name");
 
-            if (viewModel is RegisterQuestionViewModel registerVM && registerVM.DisciplineId != Guid.Empty)
+
+            if (viewModel.DisciplineId != Guid.Empty)
             {
                 var subjects = subjectRepository.GetAllRegisters()
-                    .Where(s => s.DisciplineId == registerVM.DisciplineId)
+                    .Where(s => s.DisciplineId == viewModel.DisciplineId)
                     .ToList();
 
                 viewModel.Subjects = new SelectList(subjects, "Id", "Name");
             }
             else if (viewModel.SubjectId != Guid.Empty)
             {
+
                 var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
                 if (subject != null)
                 {
+                    viewModel.DisciplineId = subject.DisciplineId;
                     var subjects = subjectRepository.GetAllRegisters()
                         .Where(s => s.DisciplineId == subject.DisciplineId)
                         .ToList();

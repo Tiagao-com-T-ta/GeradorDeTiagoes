@@ -13,8 +13,10 @@ namespace GeradorDeTiagoes.WebApp.Models.Extensions
                 Id = Guid.NewGuid(),
                 Statement = viewModel.Statement,
                 Subject = subject,
+                SubjectId = subject.Id,
                 Alternatives = viewModel.Alternatives.Select(a => new Alternative
                 {
+                    Id = Guid.NewGuid(),  
                     Text = a.Text,
                     IsCorrect = a.IsCorrect
                 }).ToList()
@@ -27,13 +29,13 @@ namespace GeradorDeTiagoes.WebApp.Models.Extensions
         {
             var question = new Question
             {
-
-                Id = Guid.NewGuid(),
+                Id = viewModel.Id,
                 Statement = viewModel.Statement,
                 Subject = subject,
-                SubjectId = subject.Id, 
+                SubjectId = subject.Id,
                 Alternatives = viewModel.Alternatives.Select(a => new Alternative
                 {
+                    Id = a.Id != Guid.Empty ? a.Id : Guid.NewGuid(),
                     Text = a.Text,
                     IsCorrect = a.IsCorrect
                 }).ToList()
@@ -47,22 +49,20 @@ namespace GeradorDeTiagoes.WebApp.Models.Extensions
             {
                 Id = question.Id,
                 Statement = question.Statement,
-                SubjectId = question.Subject.Id,
-                Alternatives = question.Alternatives.Select(a => new AlternativeViewModel
+                SubjectId = question.Subject?.Id ?? Guid.Empty,  
+                DisciplineId = question.Subject?.DisciplineId ?? Guid.Empty,  
+                Alternatives = question.Alternatives?.Select(a => new AlternativeViewModel
                 {
+                    Id = a.Id,
                     Text = a.Text,
                     IsCorrect = a.IsCorrect
-                }).ToList()
+                }).ToList() ?? new List<AlternativeViewModel>()
             };
         }
 
         public static DeleteQuestionViewModel ToDeleteQuestionViewModel(this Question question)
         {
-            return new DeleteQuestionViewModel
-            {
-                Id = question.Id,
-                Statement = question.Statement
-            };
+            return new DeleteQuestionViewModel(question.Id, question.Statement);
         }
     }
 }

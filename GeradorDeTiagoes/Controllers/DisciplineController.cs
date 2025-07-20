@@ -113,13 +113,18 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         {
             var selectedRegister = disciplineRepository.GetRegisterById(id);
 
+            if (selectedRegister == null)
+            {
+                TempData["ErrorMessage"] = "Disciplina não encontrada.";
+                return RedirectToAction("Index");
+            }
+
             var deleteVM = new DeleteDisciplineViewModel(
                 id,
                 selectedRegister.Name
-                );
+            );
 
             return View(deleteVM);
-
         }
 
         [HttpPost("delete/{id:guid}")]

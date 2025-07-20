@@ -22,6 +22,7 @@ namespace GeradorDeTiagoes.WebApp.Models
 
     public class AlternativeViewModel
     {
+        public Guid Id { get; set; }
         public string Text { get; set; }
 
         public bool IsCorrect { get; set; }
@@ -41,6 +42,7 @@ namespace GeradorDeTiagoes.WebApp.Models
     public class EditQuestionViewModel : QuestionFormViewModel
     {
         public Guid Id { get; set; }
+        public Guid DisciplineId { get; set; }
 
         public EditQuestionViewModel()
         {
@@ -83,7 +85,7 @@ namespace GeradorDeTiagoes.WebApp.Models
         public string Statement { get; set; }
         public string SubjectName { get; set; }
         public string DisciplineName { get; set; }
-        public int AlternativesCount { get; set; }
+        public int AlternativesCount => Alternatives?.Count ?? 0;
         public List<AlternativeViewModel> Alternatives { get; set; }
 
         public QuestionDetailsViewModel(Question question)
@@ -92,11 +94,11 @@ namespace GeradorDeTiagoes.WebApp.Models
             Statement = question.Statement;
             SubjectName = question.Subject?.Name ?? "Indefinida";
             DisciplineName = question.Subject?.Discipline?.Name ?? "Indefinida";
-            Alternatives = question.Alternatives.Select(a => new AlternativeViewModel
+            Alternatives = question.Alternatives?.Select(a => new AlternativeViewModel
             {
                 Text = a.Text,
                 IsCorrect = a.IsCorrect
-            }).ToList();
+            }).ToList() ?? new List<AlternativeViewModel>();
         }
     }
 }

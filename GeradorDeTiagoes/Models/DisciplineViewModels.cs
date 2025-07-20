@@ -70,7 +70,4 @@ namespace GeradorDeTiagoes.WebApp.Models
         }
       
     }
-    
-        
-    
 }

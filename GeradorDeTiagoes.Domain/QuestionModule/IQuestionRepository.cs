@@ -11,5 +11,7 @@ namespace GeradorDeTiagoes.Domain.QuestionModule
     {
         List<Question> GetAllBySubject(Guid subjectId);
         List<Question> GetAllByDiscipline(Guid disciplineId);
+
+
     }
 }
