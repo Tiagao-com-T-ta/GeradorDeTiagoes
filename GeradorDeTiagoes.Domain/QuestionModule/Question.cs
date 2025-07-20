@@ -13,24 +13,24 @@ namespace GeradorDeTiagoes.Domain.QuestionModule
     public class Question : BaseEntity<Question>
     {
         public string Text { get; set; }
-        public Subject Subject { get; set; }
+        public string SubjectName { get; set; }
         public List<Alternative> Alternatives { get; set; }
 
         
         public Question() { }
         
-        public Question(string text, Subject subject, List<Alternative> alternatives)
+        public Question(string text, string subjectName, List<Alternative> alternatives)
         {
             Id = Guid.NewGuid();
             Text = text;
-            Subject = subject;
+            SubjectName = subjectName;
             Alternatives = alternatives;
         }
 
         public override void Update(Question editedEntity)
         {
             Text = editedEntity.Text;
-            Subject = editedEntity.Subject;
+            SubjectName = editedEntity.SubjectName;
             Alternatives = editedEntity.Alternatives;
         }
     }
@@ -38,12 +38,12 @@ namespace GeradorDeTiagoes.Domain.QuestionModule
     public class Alternative
     {
         public string Text { get; set; }
-        public bool isCorrect { get; set; }
+        public bool IsCorrect { get; set; }
 
         public Alternative(string text, bool isCorrect)
         {
             Text = text;
-            this.isCorrect = isCorrect;
+            IsCorrect = isCorrect;
         }
     }
 }

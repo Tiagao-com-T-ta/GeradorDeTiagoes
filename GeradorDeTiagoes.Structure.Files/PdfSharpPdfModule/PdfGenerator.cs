@@ -57,7 +57,7 @@ namespace GeradorDeTiagoes.Structure.Files.PdfSharpPdfModule
                 
                 if (withAnswerKey)
                 {
-                    var correct = question.Alternatives.FirstOrDefault(a => a.isCorrect);
+                    var correct = question.Alternatives.FirstOrDefault(a => a.IsCorrect);
                     var correctLetter = (char)('A' + question.Alternatives.IndexOf(correct));
                     gfx.DrawString($"Resposta: {correctLetter}", fontAnswer, XBrushes.DarkGreen, new XRect(40, y, page.Width, 20), XStringFormats.TopLeft);
                     y += 20;
