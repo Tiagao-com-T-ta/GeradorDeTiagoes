@@ -9,7 +9,7 @@ namespace GeradorDeTiagoes.Domain.QuestionModule
 {
     public interface IQuestionRepository : IRepository<Question>
     {
-        List<Question> GetByDiscipline(Guid disciplineId);
-        List<Question> GetBySubject(Guid subjectId);
+        List<Question> GetAllBySubject(Guid subjectId);
+        List<Question> GetAllByDiscipline(Guid disciplineId);
     }
 }

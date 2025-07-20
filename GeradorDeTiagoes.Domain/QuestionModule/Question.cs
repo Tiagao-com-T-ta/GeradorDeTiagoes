@@ -3,47 +3,53 @@ using GeradorDeTiagoes.Domain.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GeradorDeTiagoes.Domain.QuestionModule
 {
     public class Question : BaseEntity<Question>
     {
-        public string Text { get; set; }
-        public string SubjectName { get; set; }
-        public List<Alternative> Alternatives { get; set; }
+        public string Statement { get; set; }
 
-        
+        public Guid SubjectId { get; set; }
+
+        public Subject Subject { get; set; }
+
+        public List<Alternative> Alternatives { get; set; } = new();
+
         public Question() { }
-        
-        public Question(string text, string subjectName, List<Alternative> alternatives)
+
+        public Question(string statement, Guid subjectId, List<Alternative> alternatives)
         {
             Id = Guid.NewGuid();
-            Text = text;
-            SubjectName = subjectName;
+            Statement = statement;
+            SubjectId = subjectId;
             Alternatives = alternatives;
+
+            Validate();
         }
 
-        public override void Update(Question editedEntity)
+        public override void Update(Question updated)
         {
-            Text = editedEntity.Text;
-            SubjectName = editedEntity.SubjectName;
-            Alternatives = editedEntity.Alternatives;
+            Statement = updated.Statement;
+            SubjectId = updated.SubjectId;
+            Alternatives = updated.Alternatives;
+
+            Validate();
         }
-    }
 
-    public class Alternative
-    {
-        public string Text { get; set; }
-        public bool IsCorrect { get; set; }
-
-        public Alternative(string text, bool isCorrect)
+        private void Validate()
         {
-            Text = text;
-            IsCorrect = isCorrect;
+            if (string.IsNullOrWhiteSpace(Statement))
+                throw new ArgumentException("O enunciado da questão é obrigatório.");
+
+            if (Alternatives == null || Alternatives.Count < 2 || Alternatives.Count > 4)
+                throw new ArgumentException("A questão deve ter entre 2 e 4 alternativas.");
+
+            var correctCount = Alternatives.Count(a => a.IsCorrect);
+            if (correctCount == 0)
+                throw new ArgumentException("A questão deve ter uma alternativa correta.");
+            if (correctCount > 1)
+                throw new ArgumentException("A questão não pode ter mais de uma alternativa correta.");
         }
     }
 }

@@ -1,34 +1,27 @@
 ﻿using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.Structure.Files.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GeradorDeTiagoes.Structure.Files.QuestionModule
 {
     public class QuestionRepositoryFile : BaseRepositoryFile<Question>, IQuestionRepository
     {
-        public QuestionRepositoryFile(DataContext dataContext) : base(dataContext) { }
+        public QuestionRepositoryFile(DataContext dataContext) : base(dataContext)
+        {
+        }
 
         protected override List<Question> GetRegisters()
         {
             return dataContext.Questions;
         }
 
-        public List<Question> GetByDiscipline(Guid disciplineId)
+        public List<Question> GetAllBySubject(Guid subjectId)
         {
-            return dataContext.Questions
-                .Where(q => q.Subject != null && q.Subject.DisciplineId == disciplineId)
-                .ToList();
+            return registers.Where(q => q.Subject.Id == subjectId).ToList();
         }
 
-        public List<Question> GetBySubject(Guid subjectId)
+        public List<Question> GetAllByDiscipline(Guid disciplineId)
         {
-            return dataContext.Questions
-                .Where(q => q.Subject != null && q.Subject.Id == subjectId)
-                .ToList();
+            return registers.Where(q => q.Subject.Discipline.Id == disciplineId).ToList();
         }
     }
 }
