@@ -1,32 +1,37 @@
-﻿using GeradorDeTiagoes.Domain.Entities;
-using GeradorDeTiagoes.Domain.QuestionModule;
-using GeradorDeTiagoes.WebApp.Extensions;
+﻿using GeradorDeTiagoes.Domain.QuestionModule;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace GeradorDeTiagoes.WebApp.Models
 {
-    public abstract class QuestionFormViewModel
+    public class QuestionFormViewModel
     {
         [Required(ErrorMessage = "O enunciado da questão é obrigatório.")]
-        public string Text { get; set; }
-        
-        [Required(ErrorMessage = "O nome da disciplina é obrigatório.")]
-        public string SubjectName { get; set; }
+        public string Statement { get; set; }
 
-        public List<SelectListItem> Subjects { get; set; }
-        public List<Alternative> Alternatives { get; set; }
+        [Required(ErrorMessage = "A matéria é obrigatória.")]
+        public Guid SubjectId { get; set; }
+        public SelectList Disciplines { get; set; }
+        public SelectList Subjects { get; set; }
+
+        [Required(ErrorMessage = "É necessário pelo menos uma alternativa.")]
+        [MinLength(2, ErrorMessage = "Informe ao menos duas alternativas.")]
+        public List<AlternativeViewModel> Alternatives { get; set; }
+    }
+
+    public class AlternativeViewModel
+    {
+        [Required(ErrorMessage = "O texto da alternativa é obrigatório.")]
+        public string Text { get; set; }
+
+        public bool IsCorrect { get; set; }
     }
 
     public class RegisterQuestionViewModel : QuestionFormViewModel
     {
-        public RegisterQuestionViewModel() { }
-
-        public RegisterQuestionViewModel(string text, string subjectName, List<Alternative> alternatives)
+        public RegisterQuestionViewModel()
         {
-            Text = text;
-            SubjectName = subjectName;
-            Alternatives = alternatives;
+            Alternatives = new List<AlternativeViewModel>();
         }
     }
 
@@ -34,37 +39,37 @@ namespace GeradorDeTiagoes.WebApp.Models
     {
         public Guid Id { get; set; }
 
-        public EditQuestionViewModel() { }
-        public EditQuestionViewModel(Guid id, string text, List<Alternative> alternatives)
+        public EditQuestionViewModel()
         {
-            Id = id;
-            Text = text;
-            Alternatives = alternatives;
+            Alternatives = new List<AlternativeViewModel>();
         }
     }
 
-    public class DeleteQuestionViewModel : QuestionFormViewModel
+    public class DeleteQuestionViewModel
     {
         public Guid Id { get; set; }
-        public string Text { get; set; }
+        public string Statement { get; set; }
 
         public DeleteQuestionViewModel() { }
-        public DeleteQuestionViewModel(Guid id, string text)
+
+        public DeleteQuestionViewModel(Guid id, string statement)
         {
             Id = id;
-            Text = text;
+            Statement = statement;
         }
     }
 
     public class ViewQuestionViewModel
     {
         public List<QuestionDetailsViewModel> Questions { get; set; }
+
         public ViewQuestionViewModel(List<Question> questions)
         {
             Questions = new List<QuestionDetailsViewModel>();
+
             foreach (var question in questions)
             {
-                Questions.Add(question.ToDetailsVM());
+                Questions.Add(new QuestionDetailsViewModel(question));
             }
         }
     }
@@ -72,27 +77,23 @@ namespace GeradorDeTiagoes.WebApp.Models
     public class QuestionDetailsViewModel
     {
         public Guid Id { get; set; }
-        public string Text { get; set; }
+        public string Statement { get; set; }
         public string SubjectName { get; set; }
-        public List<Alternative> Alternatives { get; set; }
-        public QuestionDetailsViewModel(Guid id, string text, string subjectName, List<Alternative> alternatives)
-        {
-            Id = id;
-            Text = text;
-            SubjectName = subjectName;
-            Alternatives = alternatives;
-        }
-    }
+        public string DisciplineName { get; set; }
+        public int AlternativesCount { get; set; }
+        public List<AlternativeViewModel> Alternatives { get; set; }
 
-    public class  SelectQuestionViewModel
-    {
-        public Guid Id { get; set; }
-        public string Text { get; set; }
-
-        public SelectQuestionViewModel(Guid id, string text)
+        public QuestionDetailsViewModel(Question question)
         {
-            Id = id;
-            Text = text;
+            Id = question.Id;
+            Statement = question.Statement;
+            SubjectName = question.Subject?.Name ?? "Indefinida";
+            DisciplineName = question.Subject?.Discipline?.Name ?? "Indefinida";
+            Alternatives = question.Alternatives.Select(a => new AlternativeViewModel
+            {
+                Text = a.Text,
+                IsCorrect = a.IsCorrect
+            }).ToList();
         }
     }
 }

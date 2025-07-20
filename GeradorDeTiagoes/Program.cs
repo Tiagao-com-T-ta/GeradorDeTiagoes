@@ -22,11 +22,10 @@ namespace GeradorDeTiagoes
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddSingleton<DataContext>(_ => new DataContext(true));
-
             builder.Services.AddScoped<IRepository<Test>, TestRepositoryFile>();
             builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryFile>();
             builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryFile>();
-            builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryFile>();
+            builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryFile>();
             builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
 
             var app = builder.Build();

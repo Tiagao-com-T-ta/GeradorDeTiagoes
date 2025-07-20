@@ -82,8 +82,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             }
 
             var availableQuestions = viewModel.IsRecovery
-                ? questionRepository.GetByDiscipline(viewModel.DisciplineId)
-                : questionRepository.GetBySubject(viewModel.SubjectId.Value);
+                ? questionRepository.GetAllByDiscipline(viewModel.DisciplineId)
+                : questionRepository.GetAllBySubject(viewModel.SubjectId.Value);
 
             if (availableQuestions.Count < viewModel.QuestionCount)
             {

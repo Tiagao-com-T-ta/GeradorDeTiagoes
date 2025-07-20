@@ -43,7 +43,7 @@ namespace GeradorDeTiagoes.Structure.Files.PdfSharpPdfModule
                     y = 40;
                 }
 
-                gfx.DrawString($"{count}) {question.Text}", fontNormal, XBrushes.Black, new XRect(20, y, page.Width - 40, 40), XStringFormats.TopLeft);
+                gfx.DrawString($"{count}) {question.Statement}", fontNormal, XBrushes.Black, new XRect(20, y, page.Width - 40, 40), XStringFormats.TopLeft);
                 y += 20;
 
                 char option = 'A';

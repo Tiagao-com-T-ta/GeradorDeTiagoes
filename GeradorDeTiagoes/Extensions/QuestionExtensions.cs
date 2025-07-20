@@ -1,32 +1,67 @@
-﻿using GeradorDeTiagoes.Domain.QuestionModule;
+﻿using GeradorDeTiagoes.Domain.Entities;
+using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.WebApp.Models;
-using Microsoft.EntityFrameworkCore;
 
-namespace GeradorDeTiagoes.WebApp.Extensions
+namespace GeradorDeTiagoes.WebApp.Models.Extensions
 {
     public static class QuestionExtensions
     {
-        public static Question ToEntity(this QuestionFormViewModel registerVM)
+        public static Question ToQuestion(this RegisterQuestionViewModel viewModel, Subject subject)
         {
             var question = new Question
             {
-                Text = registerVM.Text,
-                SubjectName = registerVM.SubjectName,
-                Alternatives = registerVM.Alternatives
+                Id = Guid.NewGuid(),
+                Statement = viewModel.Statement,
+                Subject = subject,
+                Alternatives = viewModel.Alternatives.Select(a => new Alternative
+                {
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList()
             };
 
             return question;
         }
 
-        public static QuestionDetailsViewModel ToDetailsVM(this Question question)
+        public static Question ToQuestion(this EditQuestionViewModel viewModel, Subject subject)
         {
-            return new QuestionDetailsViewModel
-            (
-                question.Id,
-                question.Text,
-                question.SubjectName,
-                question.Alternatives
-            );
+            var question = new Question
+            {
+                Id = viewModel.Id,
+                Statement = viewModel.Statement,
+                Subject = subject,
+                Alternatives = viewModel.Alternatives.Select(a => new Alternative
+                {
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList()
+            };
+
+            return question;
+        }
+
+        public static EditQuestionViewModel ToEditQuestionViewModel(this Question question)
+        {
+            return new EditQuestionViewModel
+            {
+                Id = question.Id,
+                Statement = question.Statement,
+                SubjectId = question.Subject.Id,
+                Alternatives = question.Alternatives.Select(a => new AlternativeViewModel
+                {
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList()
+            };
+        }
+
+        public static DeleteQuestionViewModel ToDeleteQuestionViewModel(this Question question)
+        {
+            return new DeleteQuestionViewModel
+            {
+                Id = question.Id,
+                Statement = question.Statement
+            };
         }
     }
 }

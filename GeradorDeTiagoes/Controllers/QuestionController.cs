@@ -1,119 +1,131 @@
 ﻿using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.Domain.SubjectsModule;
-using GeradorDeTiagoes.Structure.Files.QuestionModule;
-using GeradorDeTiagoes.Structure.Files.Shared;
-using GeradorDeTiagoes.Structure.Files.SubjectsModule;
-using GeradorDeTiagoes.WebApp.Extensions;
+using GeradorDeTiagoes.Domain.DisciplineModule;
+using GeradorDeTiagoes.Domain.Entities;
 using GeradorDeTiagoes.WebApp.Models;
+using GeradorDeTiagoes.WebApp.Models.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Linq;
+using GeradorDeTiagoes.Domain.Shared;
+using GeradorDeTiagoes.Structure.Files.Shared;
 
 namespace GeradorDeTiagoes.WebApp.Controllers
 {
-    [Route("questions")]
+    [Route("question")]
     public class QuestionController : Controller
     {
         private readonly DataContext dataContext;
-        private readonly IQuestionRepository questionRepository;
-        private readonly ISubjectRepository subjectRepository;
+        private readonly IRepository<Question> questionRepository;
+        private readonly IRepository<Subject> subjectRepository;
+        private readonly IRepository<Discipline> disciplineRepository;
 
-        public QuestionController()
+        public QuestionController(
+            IRepository<Question> questionRepository,
+            IRepository<Subject> subjectRepository,
+            IRepository<Discipline> disciplineRepository,
+            DataContext dataContext)
         {
-            dataContext = new DataContext(true);
-            questionRepository = new QuestionRepositoryFile(dataContext);
-            subjectRepository = new SubjectRepositoryFile(dataContext);
+            this.dataContext = dataContext;
+            this.questionRepository = questionRepository;
+            this.subjectRepository = subjectRepository;
+            this.disciplineRepository = disciplineRepository;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             var questions = questionRepository.GetAllRegisters();
 
-            var viewVM = new ViewQuestionViewModel(questions);
+            foreach (var question in questions)
+            {
+                question.Subject = subjectRepository.GetRegisterById(question.Subject.Id);
+                question.Subject.Discipline = disciplineRepository.GetRegisterById(question.Subject.DisciplineId);
+            }
 
-            return View();
+            var viewModel = new ViewQuestionViewModel(questions);
+            return View(viewModel);
         }
 
         [HttpGet("register")]
         public IActionResult Create()
         {
-            var registerVM = new RegisterQuestionViewModel();
-            registerVM.Subjects = subjectRepository.GetAllRegisters()
-            .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
-            .ToList();
+            var viewModel = new RegisterQuestionViewModel();
 
-            return View(registerVM);
+            LoadDisciplinesSubjects(viewModel);
+
+            return View(viewModel);
         }
 
         [HttpPost("register")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(RegisterQuestionViewModel registerVM)
+        public IActionResult Create(RegisterQuestionViewModel viewModel)
         {
-            var registers = questionRepository.GetAllRegisters();
+            LoadDisciplinesSubjects(viewModel);
 
-            var entity = registerVM.ToEntity();
+            if (!ValidateAlternatives(viewModel.Alternatives))
+            {
+                ModelState.AddModelError("", "A questão deve ter entre 2 e 4 alternativas, com exatamente 1 alternativa correta.");
+            }
 
-            questionRepository.Register(entity);
+            if (!ModelState.IsValid)
+                return View(viewModel);
+
+            var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
+            if (subject == null)
+            {
+                ModelState.AddModelError("SubjectId", "Matéria inválida.");
+                return View(viewModel);
+            }
+
+            var question = viewModel.ToQuestion(subject);
+            questionRepository.Register(question);
 
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet("edit/{id}")]
+        [HttpGet("edit/{id:guid}")]
         public IActionResult Edit(Guid id)
         {
-            var selectedQuestion = questionRepository.GetRegisterById(id);
+            var question = questionRepository.GetRegisterById(id);
+            if (question == null)
+                return NotFound();
 
-            var editVM = new EditQuestionViewModel(
-                selectedQuestion.Id,
-                selectedQuestion.Text,
-                selectedQuestion.Alternatives
-                );
+            question.Subject = subjectRepository.GetRegisterById(question.Subject.Id);
+            question.Subject.Discipline = disciplineRepository.GetRegisterById(question.Subject.DisciplineId);
 
-            return View(editVM);
+            var viewModel = question.ToEditQuestionViewModel();
+
+            LoadDisciplinesSubjects(viewModel);
+
+            return View(viewModel);
         }
 
         [HttpPost("edit/{id:guid}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, EditQuestionViewModel editVM)
+        public IActionResult Edit(Guid id, EditQuestionViewModel viewModel)
         {
-            var registers = questionRepository.GetAllRegisters();
+            LoadDisciplinesSubjects(viewModel);
 
-            var entity = editVM.ToEntity();
-
-            questionRepository.Edit(id, entity);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet("delete/{id:guid}")]
-        public IActionResult Delete(Guid id)
-        {
-            var selectedRegister = questionRepository.GetRegisterById(id);
-
-            var deleteVM = new DeleteQuestionViewModel(
-                selectedRegister.Id,
-                selectedRegister.Text
-            );
-
-            return View(deleteVM);
-
-        }
-
-        [HttpPost("delete/{id:guid}")]
-        public IActionResult DeleteConfirmed(Guid id)
-        {
-            var isInTest = dataContext.Tests.Any(t => t.Questions.Any(q => q.Id == id));
-            if (isInTest)
+            if (!ValidateAlternatives(viewModel.Alternatives))
             {
-                ModelState.AddModelError("Em Uso", "Não é possível excluir esta questão pois ela está vinculada a um teste.");
-                var question = questionRepository.GetRegisterById(id);
-                var deleteVM = new DeleteQuestionViewModel(
-                    question.Id,
-                    question.Text
-                );
-                return View(deleteVM);
+                ModelState.AddModelError("", "A questão deve ter entre 2 e 4 alternativas, com exatamente 1 alternativa correta.");
             }
 
-            questionRepository.Delete(id);
+            if (!ModelState.IsValid)
+                return View(viewModel);
+
+            var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
+            if (subject == null)
+            {
+                ModelState.AddModelError("SubjectId", "Matéria inválida.");
+                return View(viewModel);
+            }
+
+            var updatedQuestion = viewModel.ToQuestion(subject);
+
+            questionRepository.Edit(id, updatedQuestion);
 
             return RedirectToAction(nameof(Index));
         }
@@ -121,16 +133,87 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         [HttpGet("details/{id:guid}")]
         public IActionResult Details(Guid id)
         {
-            var selectedQuestion = questionRepository.GetRegisterById(id);
+            var question = questionRepository.GetRegisterById(id);
+            if (question == null)
+                return NotFound();
 
-            var detailsVM = new QuestionDetailsViewModel(
-                selectedQuestion.Id,
-                selectedQuestion.Text,
-                selectedQuestion.SubjectName,
-                selectedQuestion.Alternatives
-            );
+            question.Subject = subjectRepository.GetRegisterById(question.Subject.Id);
+            question.Subject.Discipline = disciplineRepository.GetRegisterById(question.Subject.DisciplineId);
 
-            return View(detailsVM);
+            var viewModel = new QuestionDetailsViewModel(question);
+
+            return View(viewModel);
+        }
+
+        [HttpGet("delete/{id:guid}")]
+        public IActionResult Delete(Guid id)
+        {
+            var question = questionRepository.GetRegisterById(id);
+            if (question == null)
+                return NotFound();
+
+            var viewModel = question.ToDeleteQuestionViewModel();
+
+            return View(viewModel);
+        }
+
+        [HttpPost("delete/{id:guid}")]
+        [ValidateAntiForgeryToken]
+        [ActionName("Delete")]
+        public IActionResult DeleteConfirmed(Guid id)
+        {
+            var question = questionRepository.GetRegisterById(id);
+            if (question == null)
+                return NotFound();
+
+            var isUsedInTests = dataContext.Tests.Any(t => t.Questions.Any(q => q.Id == id));
+            if (isUsedInTests)
+            {
+                TempData["ErrorMessage"] = "Não é possível excluir a questão pois está vinculada a um teste.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
+            questionRepository.Delete(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void LoadDisciplinesSubjects(QuestionFormViewModel viewModel)
+        {
+            var disciplines = disciplineRepository.GetAllRegisters();
+            viewModel.Disciplines = new SelectList(disciplines, "Id", "Name");
+
+            if (viewModel.SubjectId != Guid.Empty)
+            {
+                var subject = subjectRepository.GetRegisterById(viewModel.SubjectId);
+                if (subject != null)
+                {
+                    var subjectsByDiscipline = subjectRepository
+                        .GetAllRegisters()
+                        .Where(s => s.DisciplineId == subject.DisciplineId)
+                        .ToList();
+
+                    viewModel.Subjects = new SelectList(subjectsByDiscipline, "Id", "Name");
+                }
+                else
+                {
+                    viewModel.Subjects = new SelectList(new System.Collections.Generic.List<Subject>(), "Id", "Name");
+                }
+            }
+            else
+            {
+                viewModel.Subjects = new SelectList(new System.Collections.Generic.List<Subject>(), "Id", "Name");
+            }
+        }
+
+        private bool ValidateAlternatives(System.Collections.Generic.List<AlternativeViewModel> alternatives)
+        {
+            if (alternatives == null)
+                return false;
+
+            var correctCount = alternatives.Count(a => a.IsCorrect);
+            var totalCount = alternatives.Count;
+
+            return totalCount >= 2 && totalCount <= 4 && correctCount == 1;
         }
     }
 }
