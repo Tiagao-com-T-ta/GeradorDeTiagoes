@@ -37,7 +37,22 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var tests = testRepository.GetAllRegisters();
+            var tests = testRepository.GetAllRegisters()
+                .Select(t => new Test
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    GradeLevel = t.GradeLevel,
+                    DisciplineId = t.DisciplineId,
+                    SubjectId = t.SubjectId,
+                    QuestionCount = t.QuestionCount,
+                    IsRecovery = t.IsRecovery,
+                    Discipline = disciplineRepository.GetRegisterById(t.DisciplineId),
+                    Subject = t.SubjectId.HasValue ?
+                        subjectRepository.GetRegisterById(t.SubjectId.Value) : null,
+                    Questions = t.Questions
+                }).ToList();
+
             var viewModel = new TestListViewModel(tests);
             return View(viewModel);
         }
@@ -61,7 +76,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 return View(viewModel);
             }
 
-            if (testRepository.GetAllRegisters().Any(t => t.Title.Equals(viewModel.Title, StringComparison.OrdinalIgnoreCase)))
+            if (testRepository.GetAllRegisters()
+                .Any(t => t.Title.Equals(viewModel.Title, StringComparison.OrdinalIgnoreCase)))
             {
                 ModelState.AddModelError("Title", "Já existe um teste com este título.");
                 ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
@@ -81,19 +97,28 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 }
             }
 
+            // Obter questões disponíveis - erro quando não tem questão, adicionar validação
             var availableQuestions = viewModel.IsRecovery
                 ? questionRepository.GetAllByDiscipline(viewModel.DisciplineId)
                 : questionRepository.GetAllBySubject(viewModel.SubjectId.Value);
 
             if (availableQuestions.Count < viewModel.QuestionCount)
             {
-                ModelState.AddModelError("QuestionCount", $"Quantidade insuficiente de questões disponíveis ({availableQuestions.Count}).");
+                ModelState.AddModelError("QuestionCount",
+                    $"Quantidade insuficiente de questões disponíveis ({availableQuestions.Count}).");
                 ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
                 ViewBag.GradeLevels = GetGradeLevels();
                 return View(viewModel);
             }
 
+            // Criar teste com questões aleatórias - ainda não testado
             var test = viewModel.ToEntity();
+            var random = new Random();
+            test.Questions = availableQuestions
+                .OrderBy(q => random.Next())
+                .Take(viewModel.QuestionCount)
+                .ToList();
+
             testRepository.Register(test);
 
             return RedirectToAction(nameof(Details), new { id = test.Id });

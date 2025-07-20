@@ -11,10 +11,19 @@ namespace GeradorDeTiagoes.Structure.Files.TestsModule
         public TestRepositoryFile(DataContext dataContext) : base(dataContext)
         {
         }
-
         protected override List<Test> GetRegisters()
         {
-            return dataContext.Tests;
+            var tests = dataContext.Tests;
+
+            foreach (var test in tests)
+            {
+                test.Discipline = dataContext.Disciplines.FirstOrDefault(d => d.Id == test.DisciplineId);
+                test.Subject = test.SubjectId.HasValue
+                    ? dataContext.Subjects.FirstOrDefault(s => s.Id == test.SubjectId.Value)
+                    : null;
+            }
+
+            return tests;
         }
     }
 }

@@ -74,7 +74,6 @@
 
     <script>
         $(document).ready(function() {
-            // Load subjects when discipline changes
             $('#DisciplineId').change(function() {
                 var disciplineId = $(this).val();
                 var subjectSelect = $('#SubjectId');
@@ -91,13 +90,11 @@
                 }
             });
 
-            // Trigger change event if discipline is already selected
             if ($('#DisciplineId').val()) {
                 $('#DisciplineId').trigger('change');
             }
         });
 
-        // Alternatives management
         let alternativeCount = @Model.Alternatives.Count;
 
         function addAlternative() {
