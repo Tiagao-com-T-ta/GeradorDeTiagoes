@@ -7,6 +7,7 @@ using GeradorDeTiagoes.Domain.SubjectsModule;
 using GeradorDeTiagoes.WebApp.ViewModels;
 using GeradorDeTiagoes.WebApp.Extensions;
 using GeradorDeTiagoes.Structure.Files.Shared;
+using GeradorDeTiagoes.Domain.QuestionModule;
 
 namespace GeradorDeTiagoes.WebApp.Controllers;
 
@@ -16,25 +17,33 @@ public class SubjectController : Controller
     private readonly DataContext dataContext;
     private readonly IRepository<Subject> subjectRepository;
     private readonly IRepository<Discipline> disciplineRepository;
+    private readonly IQuestionRepository questionRepository;
 
     public SubjectController(
         IRepository<Subject> subjectRepository,
         IRepository<Discipline> disciplineRepository,
+        IQuestionRepository questionRepository,
         DataContext dataContext)
     {
         this.dataContext = dataContext;
         this.subjectRepository = subjectRepository;
         this.disciplineRepository = disciplineRepository;
+        this.questionRepository = questionRepository;
     }
 
     [HttpGet]
     public IActionResult Index()
     {
         var subjects = subjectRepository.GetAllRegisters();
+        var allQuestions = questionRepository.GetAllRegisters();
 
         foreach (var subject in subjects)
         {
             subject.Discipline = disciplineRepository.GetRegisterById(subject.DisciplineId);
+
+            subject.Questions = allQuestions
+                .Where(q => q.SubjectId == subject.Id)
+                .ToList();
         }
 
         var viewModel = new SubjectListViewModel(subjects);
