@@ -4,14 +4,21 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>93c8d61e-55fb-40a4-b807-aaf62fd9cfb8</UserSecretsId>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.18" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.18" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.18">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
 		<PackageReference Include="System.Text.Json" Version="9.0.7" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\GeradorDeTiagoes.Domain\GeradorDeTiagoes.Domain.csproj" />
 	  <ProjectReference Include="..\GeradorDeTiagoes.Structure.Files\GeradorDeTiagoes.Structure.Files.csproj" />
+	  <ProjectReference Include="..\GeradorDeTiagoes.Structure.Orm\GeradorDeTiagoes.Structure.Orm.csproj" />
 	</ItemGroup>
 </Project>

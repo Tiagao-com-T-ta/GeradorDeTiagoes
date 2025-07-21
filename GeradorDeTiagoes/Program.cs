@@ -11,6 +11,8 @@ using GeradorDeTiagoes.Structure.Files.QuestionModule;
 using GeradorDeTiagoes.Structure.Files.Shared;
 using GeradorDeTiagoes.Structure.Files.SubjectsModule;
 using GeradorDeTiagoes.Structure.Files.TestsModule;
+using GeradorDeTiagoes.Structure.Orm.DisciplineModule;
+using GeradorDeTiagoes.WebApp.DependencyInjection;
 
 namespace GeradorDeTiagoes
 {
@@ -23,11 +25,14 @@ namespace GeradorDeTiagoes
 
             builder.Services.AddSingleton<DataContext>(_ => new DataContext(true));
             builder.Services.AddScoped<IRepository<Test>, TestRepositoryFile>();
-            builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryFile>();
+            builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryOrm>();
             builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryFile>();
             builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryFile>();
             builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryFile>();
             builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
+
+            builder.Services.AddEntityFrameworkConfig(builder.Configuration);
+            builder.Services.AddSerilogConfig(builder.Logging);
 
             var app = builder.Build();
 
