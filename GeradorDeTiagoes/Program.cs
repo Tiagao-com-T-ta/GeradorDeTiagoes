@@ -12,6 +12,7 @@ using GeradorDeTiagoes.Structure.Files.Shared;
 using GeradorDeTiagoes.Structure.Files.SubjectsModule;
 using GeradorDeTiagoes.Structure.Files.TestsModule;
 using GeradorDeTiagoes.Structure.Orm.DisciplineModule;
+using GeradorDeTiagoes.Structure.Orm.QuestionModule;
 using GeradorDeTiagoes.WebApp.DependencyInjection;
 
 namespace GeradorDeTiagoes
@@ -28,8 +29,8 @@ namespace GeradorDeTiagoes
             builder.Services.AddScoped<IDisciplineRepository, DisciplineRepositoryOrm>();
             builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryOrm>();
             builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryOrm>();
-            builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryFile>();
-            builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryFile>();
+            builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryOrm>();
+            builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryOrm>();
             builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
 
             builder.Services.AddEntityFrameworkConfig(builder.Configuration);

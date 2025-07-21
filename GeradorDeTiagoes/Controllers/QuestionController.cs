@@ -10,13 +10,14 @@ using System;
 using System.Linq;
 using GeradorDeTiagoes.Domain.Shared;
 using GeradorDeTiagoes.Structure.Files.Shared;
+using GeradorDeTiagoes.Structure.Orm.Shared;
 
 namespace GeradorDeTiagoes.WebApp.Controllers
 {
     [Route("question")]
     public class QuestionController : Controller
     {
-        private readonly DataContext dataContext;
+        private readonly GeradorDeTiagoesDbContext dataContext;
         private readonly IRepository<Question> questionRepository;
         private readonly IRepository<Subject> subjectRepository;
         private readonly IRepository<Discipline> disciplineRepository;
@@ -25,7 +26,7 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             IRepository<Question> questionRepository,
             IRepository<Subject> subjectRepository,
             IRepository<Discipline> disciplineRepository,
-            DataContext dataContext)
+            GeradorDeTiagoesDbContext dataContext)
         {
             this.dataContext = dataContext;
             this.questionRepository = questionRepository;
@@ -38,13 +39,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         {
             var questions = questionRepository.GetAllRegisters();
 
-            foreach (var question in questions)
-            {
-                question.Subject = subjectRepository.GetRegisterById(question.Subject.Id);
-                question.Subject.Discipline = disciplineRepository.GetRegisterById(question.Subject.DisciplineId);
-            }
-
             var viewModel = new ViewQuestionViewModel(questions);
+
             return View(viewModel);
         }
 
@@ -80,7 +76,10 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             }
 
             var question = viewModel.ToQuestion(subject);
+
             questionRepository.Register(question);
+
+            dataContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
         }
@@ -120,6 +119,7 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             existingQuestion.Subject = subject;
             existingQuestion.SubjectId = subject.Id;
 
+            dataContext.Alternatives.RemoveRange(existingQuestion.Alternatives);
 
             existingQuestion.Alternatives = viewModel.Alternatives
                 .Where(a => !string.IsNullOrWhiteSpace(a.Text))
@@ -131,16 +131,20 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 })
                 .ToList();
 
+            var transaction = dataContext.Database.BeginTransaction();
+
             try
             {
                 questionRepository.Edit(id, existingQuestion);
-                return RedirectToAction(nameof(Index));
+                dataContext.SaveChanges();
+                transaction.Commit();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LoadDisciplinesSubjects(viewModel);
-                return View(viewModel);
+                transaction.Rollback();
+                throw;
             }
+            return RedirectToAction(nameof(Index));
         }
 
 
@@ -186,8 +190,23 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 TempData["ErrorMessage"] = "Não é possível excluir a questão pois está vinculada a um teste.";
                 return RedirectToAction(nameof(Delete), new { id });
             }
+            
+            var transaction = dataContext.Database.BeginTransaction();
 
-            questionRepository.Delete(id);
+            try
+            {
+                questionRepository.Delete(id);
+
+                dataContext.SaveChanges();
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
