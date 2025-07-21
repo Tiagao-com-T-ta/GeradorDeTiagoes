@@ -8,12 +8,15 @@ using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.WebApp.ViewModels;
 using GeradorDeTiagoes.WebApp.Extensions;
 using GeradorDeTiagoes.Domain.PdfModule;
+using GeradorDeTiagoes.Structure.Files.Shared;
+using GeradorDeTiagoes.Structure.Orm.Shared;
 
 namespace GeradorDeTiagoes.WebApp.Controllers
 {
     [Route("tests")]
     public class TestController : Controller
     {
+        private readonly GeradorDeTiagoesDbContext dataContext;
         private readonly IRepository<Test> testRepository;
         private readonly IRepository<Discipline> disciplineRepository;
         private readonly IRepository<Subject> subjectRepository;
@@ -25,8 +28,10 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             IRepository<Discipline> disciplineRepository,
             IRepository<Subject> subjectRepository,
             IQuestionRepository questionRepository,
-            IPdfGenerator pdfGenerator)
+            IPdfGenerator pdfGenerator,
+            GeradorDeTiagoesDbContext dataContext)
         {
+            this.dataContext = dataContext;
             this.testRepository = testRepository;
             this.disciplineRepository = disciplineRepository;
             this.subjectRepository = subjectRepository;
@@ -121,6 +126,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
 
             testRepository.Register(test);
 
+            dataContext.SaveChanges();
+
             return RedirectToAction(nameof(Details), new { id = test.Id });
         }
 
@@ -132,8 +139,21 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 return NotFound();
 
             var viewModel = originalTest.ToDuplicateViewModel();
+            viewModel.IsRecovery = false;
+
             ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
             ViewBag.GradeLevels = GetGradeLevels();
+
+            if (viewModel.DisciplineId != Guid.Empty)
+            {
+                var subjects = subjectRepository.GetAllRegisters()
+                    .Where(s => s.DisciplineId == viewModel.DisciplineId)
+                    .ToList();
+
+                ViewBag.Subjects = subjects;
+            
+            }
+
             return View(viewModel);
         }
 
@@ -156,8 +176,35 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 return View(viewModel);
             }
 
+            var originalTest = testRepository.GetRegisterById(id);
+            if (originalTest == null)
+                return NotFound();
+
             var newTest = viewModel.ToEntity();
+
+            newTest.Questions = originalTest.Questions.Select(originalQ =>
+            {
+                var clonnedQuestion = new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Statement = originalQ.Statement,
+                    Subject =originalQ.Subject,
+                    SubjectId = originalQ.SubjectId,
+                    Alternatives = viewModel.IsRecovery
+                    ? new List<Alternative>()
+                    : originalQ.Alternatives.Select(a => new Alternative
+                    {
+                        Id = Guid.NewGuid(),
+                        Text = a.Text,
+                        IsCorrect = a.IsCorrect
+                    }).ToList()
+                };
+                return clonnedQuestion;
+            }).ToList();
+
             testRepository.Register(newTest);
+
+            dataContext.SaveChanges();
 
             return RedirectToAction(nameof(Details), new { id = newTest.Id });
         }
@@ -186,8 +233,23 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         [HttpPost("excluir/{id:guid}")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(Guid id)
-        {
-            testRepository.Delete(id);
+        { 
+            var transaction = dataContext.Database.BeginTransaction();
+
+            try
+            {
+                testRepository.Delete(id);
+
+                dataContext.SaveChanges();
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

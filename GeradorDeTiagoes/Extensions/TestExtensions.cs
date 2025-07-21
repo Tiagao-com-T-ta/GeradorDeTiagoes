@@ -57,7 +57,7 @@ namespace GeradorDeTiagoes.WebApp.Extensions
                 DisciplineId = test.DisciplineId,
                 SubjectId = test.IsRecovery ? null : test.SubjectId,
                 QuestionCount = test.QuestionCount,
-                IsRecovery = test.IsRecovery
+                IsRecovery = false
             };
         }
     }

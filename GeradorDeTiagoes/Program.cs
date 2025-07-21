@@ -3,16 +3,11 @@ using GeradorDeTiagoes.Domain.Entities;
 using GeradorDeTiagoes.Domain.PdfModule;
 using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.Domain.Shared;
-using GeradorDeTiagoes.Domain.SubjectsModule;
-using GeradorDeTiagoes.Domain.TestsModule;
-using GeradorDeTiagoes.Structure.Files.DisciplineModule;
 using GeradorDeTiagoes.Structure.Files.PdfSharpPdfModule;
-using GeradorDeTiagoes.Structure.Files.QuestionModule;
 using GeradorDeTiagoes.Structure.Files.Shared;
-using GeradorDeTiagoes.Structure.Files.SubjectsModule;
-using GeradorDeTiagoes.Structure.Files.TestsModule;
 using GeradorDeTiagoes.Structure.Orm.DisciplineModule;
 using GeradorDeTiagoes.Structure.Orm.QuestionModule;
+using GeradorDeTiagoes.Structure.Orm.TestModule;
 using GeradorDeTiagoes.WebApp.DependencyInjection;
 
 namespace GeradorDeTiagoes
@@ -25,7 +20,7 @@ namespace GeradorDeTiagoes
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddSingleton<DataContext>(_ => new DataContext(true));
-            builder.Services.AddScoped<IRepository<Test>, TestRepositoryFile>();
+            builder.Services.AddScoped<IRepository<Test>, TestRepositoryOrm>();
             builder.Services.AddScoped<IDisciplineRepository, DisciplineRepositoryOrm>();
             builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryOrm>();
             builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryOrm>();

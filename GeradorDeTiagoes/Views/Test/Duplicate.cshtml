@@ -43,7 +43,7 @@
 
                     <div class="form-group d-grid gap-2 mt-3" id="subjectGroup">
                         <label asp-for="SubjectId" class="control-label fs-5">Matéria:</label>
-                        <select asp-for="SubjectId" class="form-select" id="subjectSelect" disabled>
+                        <select asp-for="SubjectId" asp-items="@(new SelectList(ViewBag.Subjects, "Id", "Name", Model.SubjectId))" class="form-select" id="subjectSelect"> 
                             <option value="">Selecione uma matéria</option>
                         </select>
                         <span asp-validation-for="SubjectId" class="text-danger"></span>
