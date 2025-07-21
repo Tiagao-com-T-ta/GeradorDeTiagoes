@@ -61,6 +61,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
 
             disciplineRepository.Register(entity);
 
+            dataContext.SaveChanges();
+
             return RedirectToAction(nameof(Index));
 
 
@@ -103,7 +105,21 @@ namespace GeradorDeTiagoes.WebApp.Controllers
 
             var editedEntity = editVM.ToEntity();
 
-            disciplineRepository.Edit(id, editedEntity);
+            var transaction = dataContext.Database.BeginTransaction();
+
+            try
+            {
+                disciplineRepository.Edit(id, editedEntity);
+
+                dataContext.SaveChanges();
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
 
             return RedirectToAction(nameof(Index));
 

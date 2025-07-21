@@ -25,7 +25,7 @@ namespace GeradorDeTiagoes
 
             builder.Services.AddSingleton<DataContext>(_ => new DataContext(true));
             builder.Services.AddScoped<IRepository<Test>, TestRepositoryFile>();
-            builder.Services.AddScoped<IRepository<Discipline>, DisciplineRepositoryOrm>();
+            builder.Services.AddScoped<IDisciplineRepository, DisciplineRepositoryOrm>();
             builder.Services.AddScoped<IRepository<Subject>, SubjectRepositoryFile>();
             builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryFile>();
             builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryFile>();
