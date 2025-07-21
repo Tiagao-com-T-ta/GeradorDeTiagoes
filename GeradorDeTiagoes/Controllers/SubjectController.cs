@@ -124,8 +124,24 @@ public class SubjectController : Controller
             Discipline = disciplineRepository.GetRegisterById(viewModel.DisciplineId)
         };
 
-        subjectRepository.Edit(id, updatedSubject);
+        var transaction = dataContext.Database.BeginTransaction();
+
+        try
+        {
+            subjectRepository.Edit(id, updatedSubject);
+
+            dataContext.SaveChanges();
+
+            transaction.Commit();
+        }
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw;
+        }
+
         return RedirectToAction(nameof(Index));
+
     }
 
     private SubjectFormViewModel FillFormViewModel(SubjectFormViewModel viewModel)
@@ -203,7 +219,23 @@ public class SubjectController : Controller
             return RedirectToAction(nameof(Delete), new { id });
         }
 
-        subjectRepository.Delete(id);
+        
+        var transaction = dataContext.Database.BeginTransaction();
+
+        try
+        {
+            subjectRepository.Delete(id);
+
+            dataContext.SaveChanges();
+
+            transaction.Commit();
+        }
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw;
+        }
+
         return RedirectToAction(nameof(Index));
     }
 

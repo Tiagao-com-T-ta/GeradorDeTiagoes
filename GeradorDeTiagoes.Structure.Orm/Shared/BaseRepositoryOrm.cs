@@ -10,10 +10,12 @@ namespace GeradorDeTiagoes.Structure.Orm.Shared
 {
     public class BaseRepositoryOrm<T> where T : BaseEntity<T>
     {
+        protected readonly GeradorDeTiagoesDbContext dbContext;
         private readonly DbSet<T> registers;
 
         public BaseRepositoryOrm(GeradorDeTiagoesDbContext context)
         {
+            dbContext = context;
             this.registers = context.Set<T>();
         }
 
