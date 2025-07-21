@@ -8,13 +8,14 @@ using GeradorDeTiagoes.WebApp.ViewModels;
 using GeradorDeTiagoes.WebApp.Extensions;
 using GeradorDeTiagoes.Structure.Files.Shared;
 using GeradorDeTiagoes.Domain.QuestionModule;
+using GeradorDeTiagoes.Structure.Orm.Shared;
 
 namespace GeradorDeTiagoes.WebApp.Controllers;
 
 [Route("subject")]
 public class SubjectController : Controller
 {
-    private readonly DataContext dataContext;
+    private readonly GeradorDeTiagoesDbContext dataContext;
     private readonly IRepository<Subject> subjectRepository;
     private readonly IRepository<Discipline> disciplineRepository;
     private readonly IQuestionRepository questionRepository;
@@ -23,7 +24,7 @@ public class SubjectController : Controller
         IRepository<Subject> subjectRepository,
         IRepository<Discipline> disciplineRepository,
         IQuestionRepository questionRepository,
-        DataContext dataContext)
+        GeradorDeTiagoesDbContext dataContext)
     {
         this.dataContext = dataContext;
         this.subjectRepository = subjectRepository;
@@ -78,6 +79,9 @@ public class SubjectController : Controller
         };
 
         subjectRepository.Register(subject);
+
+        dataContext.SaveChanges();
+
         return RedirectToAction(nameof(Index));
     }
 
