@@ -12,10 +12,10 @@ namespace GeradorDeTiagoes.Structure.Orm.Shared
 {
     public class GeradorDeTiagoesDbContext : DbContext
     {
-        DbSet<Discipline> Disciplines { get; set; }
-        DbSet<Subject> Subjects { get; set; }
-        DbSet<Test> Tests { get; set; }
-        DbSet<Question> Questions { get; set; }
+        public DbSet<Discipline> Disciplines { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
+        public DbSet<Test> Tests { get; set; }
+        public DbSet<Question> Questions { get; set; }
 
         public GeradorDeTiagoesDbContext(DbContextOptions options) : base(options) { }
 

@@ -1,6 +1,7 @@
 ﻿using GeradorDeTiagoes.Domain.DisciplineModule;
 using GeradorDeTiagoes.Domain.Shared;
 using GeradorDeTiagoes.Structure.Files.Shared;
+using GeradorDeTiagoes.Structure.Orm.Shared;
 using GeradorDeTiagoes.WebApp.Extensions;
 using GeradorDeTiagoes.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,10 @@ namespace GeradorDeTiagoes.WebApp.Controllers
     [Route("discipline")]
     public class DisciplineController : Controller
     {
-        private readonly DataContext dataContext;
-        private readonly IRepository<Discipline> disciplineRepository;
+        private readonly GeradorDeTiagoesDbContext dataContext;
+        private readonly IDisciplineRepository disciplineRepository;
 
-        public DisciplineController(DataContext dataContext, IRepository<Discipline> disciplineRepository)
+        public DisciplineController(GeradorDeTiagoesDbContext dataContext, IDisciplineRepository disciplineRepository)
         {
             this.dataContext = dataContext;
             this.disciplineRepository = disciplineRepository;
