@@ -29,7 +29,7 @@ namespace GeradorDeTiagoes.Structure.Orm.Shared
             if (existingRegister is null)
                 return false;
 
-            registers.Update(existingRegister);
+            existingRegister.Update(editedRegister);
             
             return true;
         }

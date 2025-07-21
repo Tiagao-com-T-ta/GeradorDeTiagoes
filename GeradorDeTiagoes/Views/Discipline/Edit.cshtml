@@ -12,6 +12,7 @@
         <div class="card rounded-4 border-0">
             <div class="card-body p-md-5">
                 <form asp-action="Edit" asp-route-id="@Model.Id">
+                    <input type="hidden" asp-for="Id" />
                     <h3>Edição de Disciplina</h3>
 
                     @if (ViewData.ModelState["Name"]?.Errors.Count > 0)

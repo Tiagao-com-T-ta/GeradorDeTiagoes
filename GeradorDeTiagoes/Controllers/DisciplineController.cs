@@ -145,7 +145,7 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         }
 
         [HttpPost("delete/{id:guid}")]
-        public IActionResult ConfirmDelete(Guid id)
+        public IActionResult DeleteConfirmed(Guid id)
         {
             var hasSubjects = dataContext.Subjects.Any(a => a.Discipline.Id == id);
             if (hasSubjects)
@@ -156,7 +156,20 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 return View("Delete", deleteVM);
             }
 
-            disciplineRepository.Delete(id);
+            var transaction = dataContext.Database.BeginTransaction();
+
+            try
+            {
+                disciplineRepository.Delete(id);
+
+                dataContext.SaveChanges();
+
+                transaction.Commit();
+            } catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
 
             return RedirectToAction(nameof(Index));
         }
