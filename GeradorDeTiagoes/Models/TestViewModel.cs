@@ -1,6 +1,7 @@
 ﻿using GeradorDeTiagoes.Domain.DisciplineModule;
 using GeradorDeTiagoes.Domain.Entities;
 using GeradorDeTiagoes.WebApp.Extensions;
+using GeradorDeTiagoes.WebApp.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -49,18 +50,20 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
         public int QuestionCount { get; set; }
         public bool IsRecovery { get; set; }
         public int QuestionsInTest { get; set; }
+        public List<QuestionDetailsViewModel> Questions { get; set; } = new();
 
         public TestDetailsViewModel(
-            Guid id,
-            string title,
-            string gradeLevel,
-            Guid disciplineId,
-            string disciplineName,
-            Guid? subjectId,
-            string subjectName,
-            int questionCount,
-            bool isRecovery,
-            int questionsInTest)
+          Guid id,
+          string title,
+          string gradeLevel,
+          Guid disciplineId,
+          string disciplineName,
+          Guid? subjectId,
+          string subjectName,
+          int questionCount,
+          bool isRecovery,
+          int questionsInTest,
+          List<QuestionDetailsViewModel> questions)
         {
             Id = id;
             Title = title;
@@ -72,6 +75,7 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
             QuestionCount = questionCount;
             IsRecovery = isRecovery;
             QuestionsInTest = questionsInTest;
+            Questions = questions;
         }
     }
 
@@ -91,6 +95,18 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
                     ? subjects.FirstOrDefault(s => s.Id == t.SubjectId.Value)
                     : null;
 
+                var questionsVm = t.Questions?.Select(q => new QuestionDetailsViewModel
+                {
+                    Id = q.Id,
+                    Statement = q.Statement,
+                    Alternatives = q.Alternatives?.Select(a => new AlternativeDetailsViewModel
+                    {
+                        Id = a.Id,
+                        Text = a.Text,
+                        IsCorrect = a.IsCorrect
+                    }).ToList() ?? new List<AlternativeDetailsViewModel>()
+                }).ToList() ?? new List<QuestionDetailsViewModel>();
+
                 return new TestDetailsViewModel(
                     t.Id,
                     t.Title,
@@ -101,15 +117,12 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
                     subject?.Name ?? "",
                     t.QuestionCount,
                     t.IsRecovery,
-                    t.Questions?.Count ?? 0
+                    t.Questions?.Count ?? 0,
+                    questionsVm 
                 );
             });
         }
     }
-
-
-
-
     public class TestDuplicateViewModel : TestFormViewModel
     {
         public Guid OriginalTestId { get; set; }
@@ -119,6 +132,19 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
     {
         public Guid TestId { get; set; }
         public bool IncludeAnswers { get; set; }
+    }
+    public class QuestionDetailsViewModel
+    {
+        public Guid Id { get; set; }
+        public string Statement { get; set; }
+        public List<AlternativeDetailsViewModel> Alternatives { get; set; } = new();
+    }
+
+    public class AlternativeDetailsViewModel
+    {
+        public Guid Id { get; set; }
+        public string Text { get; set; }
+        public bool IsCorrect { get; set; }
     }
 
 }

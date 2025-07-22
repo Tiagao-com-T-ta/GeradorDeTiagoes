@@ -17,9 +17,20 @@ namespace GeradorDeTiagoes.WebApp.Extensions
                 viewModel.IsRecovery
             );
         }
-
         public static TestDetailsViewModel ToDetailsViewModel(this Test test)
         {
+            var questionsVm = test.Questions?.Select(q => new QuestionDetailsViewModel
+            {
+                Id = q.Id,
+                Statement = q.Statement,
+                Alternatives = q.Alternatives?.Select(a => new AlternativeDetailsViewModel
+                {
+                    Id = a.Id,
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect
+                }).ToList() ?? new List<AlternativeDetailsViewModel>()
+            }).ToList() ?? new List<QuestionDetailsViewModel>();
+
             return new TestDetailsViewModel(
                 test.Id,
                 test.Title,
@@ -30,7 +41,8 @@ namespace GeradorDeTiagoes.WebApp.Extensions
                 test.Subject?.Name,
                 test.QuestionCount,
                 test.IsRecovery,
-                test.Questions?.Count ?? 0
+                test.Questions?.Count ?? 0,
+                questionsVm
             );
         }
 

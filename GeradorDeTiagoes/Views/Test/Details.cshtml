@@ -46,6 +46,37 @@
                     </div>
                 </div>
 
+                <div class="mt-5">
+                    <h4>Questões do Teste</h4>
+                    @if (Model.Questions != null && Model.Questions.Any())
+                    {
+                        <ol>
+                            @foreach (var question in Model.Questions)
+                            {
+                                <li class="mb-4">
+                                    <p><strong>@question.Statement</strong></p>
+                                    <ul>
+                                        @foreach (var alt in question.Alternatives)
+                                        {
+                                            <li>
+                                                @alt.Text
+                                                @if (alt.IsCorrect)
+                                                {
+                                                    <span class="badge bg-success ms-2">Correta</span>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ol>
+                    }
+                    else
+                    {
+                        <p>Nenhuma questão cadastrada para este teste.</p>
+                    }
+                </div>
+
                 <div class="d-flex gap-2 justify-content-end mt-4">
                     <a href="/tests/pdf/@Model.Id" class="btn btn-primary">Gerar PDF</a>
                     <a href="/tests/pdf/@Model.Id?gabarito=true" class="btn btn-secondary">Gerar Gabarito</a>
