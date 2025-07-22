@@ -17,18 +17,20 @@
 
 <hr />
 
-<div class="row d-none d-md-flex fw-bold border-bottom pb-2 mb-2">
+<!-- Cabeçalho da tabela (desktop) -->
+<div class="row d-none d-md-flex fw-bold border-bottom pb-2 mb-2 gx-1">
     <div class="col-md-4">Nome</div>
-    <div class="col-md-3">Disciplina</div>
-    <div class="col-md-2">Série</div>
-    <div class="col-md-1">Qtd. Questões</div>
+    <div class="col-md-2">Disciplina</div>
+    <div class="col-md-3">Série</div>
+    <div class="col-md-1 text-center">Qtd. Questões</div>
     <div class="col-md-2 text-end">Ações</div>
 </div>
 
 @foreach (var subject in Model.Subjects)
 {
-    <div class="row border-bottom py-2 align-items-center g-2 flex-md-nowrap">
+    <div class="row border-bottom py-2 align-items-center flex-md-nowrap gx-1">
 
+        <!-- versão mobile -->
         <div class="col-12 d-md-none">
             <a asp-action="Details" asp-route-id="@subject.Id" class="text-decoration-none text-dark">
                 <div class="card hover-shadow" style="cursor: pointer;">
@@ -41,16 +43,10 @@
                         <p class="mb-1"><strong>Questões:</strong> @subject.QuestionCount</p>
 
                         <div class="d-flex justify-content-end gap-2 mt-3">
-                            <a asp-action="Edit" asp-route-id="@subject.Id"
-                               class="btn btn-icon btn-outline-primary"
-                               title="Editar"
-                               onclick="event.stopPropagation()">
+                            <a asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-icon btn-outline-primary" title="Editar" onclick="event.stopPropagation()">
                                 <span class="material-icons">edit</span>
                             </a>
-                            <a asp-action="Delete" asp-route-id="@subject.Id"
-                               class="btn btn-icon btn-outline-danger"
-                               title="Excluir"
-                               onclick="event.stopPropagation()">
+                            <a asp-action="Delete" asp-route-id="@subject.Id" class="btn btn-icon btn-outline-danger" title="Excluir" onclick="event.stopPropagation()">
                                 <span class="material-icons">delete</span>
                             </a>
                         </div>
@@ -59,11 +55,15 @@
             </a>
         </div>
 
+        <!-- versão desktop -->
         <div class="d-none d-md-flex col-md-4 align-items-center">@subject.Name</div>
-        <div class="d-none d-md-flex col-md-3 align-items-center">@subject.DisciplineName</div>
-        <div class="d-none d-md-flex col-md-2 align-items-center">@subject.GradeLevel</div>
-        <div class="d-none d-md-flex col-md-1 align-items-center">@subject.QuestionCount</div>
-        <div class="d-none d-md-flex col-md-2 justify-content-end gap-2">
+        <div class="d-none d-md-flex col-md-2 align-items-center">@subject.DisciplineName</div>
+        <div class="d-none d-md-flex col-md-3 align-items-center pe-1">@subject.GradeLevel</div> 
+        <div class="d-none d-md-flex col-md-1 d-flex justify-content-center align-items-center ps-1">@subject.QuestionCount</div> 
+        <div class="d-none d-md-flex col-md-2 d-flex justify-content-end align-items-center gap-2">
+            <a asp-action="Details" asp-route-id="@subject.Id" class="btn btn-icon btn-outline-secondary" title="Detalhes">
+                <span class="material-icons">visibility</span>
+            </a>
             <a asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-icon btn-outline-primary" title="Editar">
                 <span class="material-icons">edit</span>
             </a>

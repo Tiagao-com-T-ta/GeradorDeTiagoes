@@ -6,7 +6,6 @@
     ViewBag.Titulo = "Visualização de Disciplinas";
 }
 
-
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -31,12 +30,15 @@
     {
         <div class="row border-bottom py-2 align-items-center g-2 flex-md-nowrap">
 
-            <!-- CARD PARA MOBILE -->
+            <!-- MOBILE: Card para celular -->
             <div class="col-12 d-md-none">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">@discipline.Name</h5>
                         <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a asp-action="Details" asp-route-id="@discipline.Id" class="btn btn-icon btn-outline-secondary" title="Detalhes">
+                                <span class="material-icons">visibility</span>
+                            </a>
                             <a asp-action="Edit" asp-route-id="@discipline.Id" class="btn btn-icon btn-outline-primary" title="Editar">
                                 <span class="material-icons">edit</span>
                             </a>
@@ -48,9 +50,12 @@
                 </div>
             </div>
 
-            <!-- TABELA PARA DESKTOP -->
+            <!-- DESKTOP: Linha da "tabela" -->
             <div class="d-none d-md-flex col-md-8 align-items-center">@discipline.Name</div>
             <div class="d-none d-md-flex col-md-4 justify-content-end gap-2">
+                <a asp-action="Details" asp-route-id="@discipline.Id" class="btn btn-icon btn-outline-secondary" title="Detalhes">
+                    <span class="material-icons">visibility</span>
+                </a>
                 <a asp-action="Edit" asp-route-id="@discipline.Id" class="btn btn-icon btn-outline-primary" title="Editar">
                     <span class="material-icons">edit</span>
                 </a>

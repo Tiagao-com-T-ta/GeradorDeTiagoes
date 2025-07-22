@@ -1,51 +1,51 @@
 ﻿@{
     ViewData["Title"] = "Sistema de Gestão de Matérias";
 }
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <div class="container mt-5">
     <div class="text-center mb-5">
         <h1 class="display-4">Bem-vindo ao Sistema de GERADOR DE TIAGÕES</h1>
         <p class="lead">Gerencie suas matérias, disciplinas e provas</p>
     </div>
 
-    <!-- Primeira linha: Questões -->
     <div class="row justify-content-center g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-success mb-4 mx-auto">
-                        <i class="bi bi-plus-lg text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">add</span>
                     </div>
                     <h3 class="h5">Cadastrar Questões</h3>
-                    <p class="text-muted mb-4">Adicione uma nova Questões ao sistema</p>
+                    <p class="text-muted mb-4">Adicione uma nova questão ao sistema</p>
                     <a asp-controller="Question" asp-action="Create" class="btn btn-outline-success stretched-link">
                         Novo Cadastro
                     </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-danger mb-4 mx-auto">
-                        <i class="bi bi-question-circle text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">help</span>
                     </div>
                     <h3 class="h5">Listar Questões</h3>
-                    <p class="text-muted mb-4">Veja todas as questões cadastradas</p>
+                    <p class="text-muted mb-4">Veja todas as questões cadastradas e suas alternativa corretas</p>
                     <a asp-controller="Question" asp-action="Index" class="btn btn-outline-danger stretched-link">
                         Acessar Listagem
                     </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Segunda linha: Matérias -->
-    <div class="row justify-content-center g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-primary mb-4 mx-auto">
-                        <i class="bi bi-list-ul text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">list</span>
                     </div>
                     <h3 class="h5">Listar Matérias</h3>
                     <p class="text-muted mb-4">Veja todas as matérias cadastradas</p>
@@ -56,11 +56,11 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-success mb-4 mx-auto">
-                        <i class="bi bi-plus-lg text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">add</span>
                     </div>
                     <h3 class="h5">Cadastrar Matéria</h3>
                     <p class="text-muted mb-4">Adicione uma nova matéria ao sistema</p>
@@ -70,18 +70,15 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Terceira linha: Disciplinas -->
-    <div class="row justify-content-center g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-primary mb-4 mx-auto">
-                        <i class="bi bi-list-ul text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">list</span>
                     </div>
                     <h3 class="h5">Listar Disciplinas</h3>
-                    <p class="text-muted mb-4">Veja todas as Disciplinas cadastradas</p>
+                    <p class="text-muted mb-4">Veja todas as disciplinas cadastradas</p>
                     <a asp-controller="Discipline" asp-action="Index" class="btn btn-outline-primary stretched-link">
                         Acessar Listagem
                     </a>
@@ -89,11 +86,11 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-success mb-4 mx-auto">
-                        <i class="bi bi-plus-lg text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">add</span>
                     </div>
                     <h3 class="h5">Cadastrar Disciplina</h3>
                     <p class="text-muted mb-4">Adicione uma nova disciplina ao sistema</p>
@@ -103,18 +100,15 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Quarta linha: Testes -->
-    <div class="row justify-content-center g-4">
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-info mb-4 mx-auto">
-                        <i class="bi bi-file-text text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">description</span>
                     </div>
                     <h3 class="h5">Listar Testes</h3>
-                    <p class="text-muted mb-4">Visualize todos os testes gerados</p>
+                    <p class="text-muted mb-4">Visualize todos os testes gerados e baixe sua versão PDF</p>
                     <a asp-controller="Test" asp-action="Index" class="btn btn-outline-info stretched-link">
                         Acessar Listagem
                     </a>
@@ -122,14 +116,14 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm rounded-4">
                 <div class="card-body text-center p-4">
                     <div class="icon-circle bg-warning mb-4 mx-auto">
-                        <i class="bi bi-file-earmark-plus text-white fs-3"></i>
+                        <span class="material-icons text-white fs-3">note_add</span>
                     </div>
                     <h3 class="h5">Gerar Teste</h3>
-                    <p class="text-muted mb-4">Crie um novo teste aleatório</p>
+                    <p class="text-muted mb-4">Crie um novo teste aleatório e provas de recuperação</p>
                     <a asp-controller="Test" asp-action="Create" class="btn btn-outline-warning stretched-link">
                         Novo Teste
                     </a>
@@ -138,6 +132,7 @@
         </div>
     </div>
 </div>
+
 <style>
     .icon-circle {
         width: 60px;
@@ -156,27 +151,8 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+
+    .material-icons {
+        font-size: 30px;
+    }
 </style>
-
-
-        @*  <!-- Buscar por Id para Details, Edit e Delete -->
-        <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
-                <h3 class="h5 mb-4 text-center">Buscar Matéria por ID</h3>
-
-                <form method="get" asp-controller="Subject" asp-action="Details" class="d-flex gap-2 justify-content-center">
-                    <input type="text" name="id" class="form-control" placeholder="Digite o ID da matéria (GUID)" />
-                    <button type="submit" class="btn btn-info">Visualizar Detalhes</button>
-                </form>
-
-                <div class="d-flex gap-2 justify-content-center mt-3">
-                    <form method="get" asp-controller="Subject" asp-action="Edit" class="d-flex gap-2">
-                        <input type="text" name="id" class="form-control" placeholder="Digite o ID para editar" />
-                        <button type="submit" class="btn btn-warning text-white">Editar</button>
-                    </form>
-
-                    <form method="get" asp-controller="Subject" asp-action="Delete" class="d-flex gap-2">
-                        <input type="text" name="id" class="form-control" placeholder="Digite o ID para excluir" />
-                        <button type="submit" class="btn btn-danger">Excluir</button>
-                    </form>
-                </div> *@
