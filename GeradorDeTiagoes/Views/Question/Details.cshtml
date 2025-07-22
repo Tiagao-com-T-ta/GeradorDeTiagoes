@@ -1,17 +1,62 @@
 ﻿@model GeradorDeTiagoes.WebApp.Models.QuestionDetailsViewModel
 
-<h2>Detalhes da Questão</h2>
+@{
+    ViewBag.Titulo = "Detalhes da Questão";
+}
 
-<p><strong>Enunciado:</strong> @Model.Statement</p>
-<p><strong>Disciplina:</strong> @Model.DisciplineName</p>
-<p><strong>Matéria:</strong> @Model.SubjectName</p>
-<span class="fw-semibold">Qtd. Alternativas:</span> @Model.AlternativesCount
-<p><strong>Alternativas:</strong></p>
-<ul>
-    @foreach (var alt in Model.Alternatives)
-    {
-        <li>@alt.Text @(alt.IsCorrect ? "(Correta)" : "")</li>
-    }
-</ul>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-<a asp-action="Index" class="btn btn-primary">Voltar</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@ViewBag.Titulo</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <span class="material-icons align-middle">arrow_back</span>
+        Voltar
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <div class="mb-4">
+            <label class="text-muted mb-1">Enunciado</label>
+            <div class="fw-semibold fs-5">@Model.Statement</div>
+        </div>
+
+        <div class="row gy-3">
+            <div class="col-md-4">
+                <label class="text-muted mb-0">Disciplina</label>
+                <div class="fw-semibold">@Model.DisciplineName</div>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted mb-0">Matéria</label>
+                <div class="fw-semibold">@Model.SubjectName</div>
+            </div>
+            <div class="col-md-4">
+                <label class="text-muted mb-0">Qtd. de Alternativas</label>
+                <div class="fw-semibold">@Model.AlternativesCount</div>
+            </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <h5 class="mb-3">Alternativas</h5>
+        <ul class="list-group">
+            @foreach (var alt in Model.Alternatives)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@alt.Text</span>
+                    @if (alt.IsCorrect)
+                    {
+                        <span class="badge bg-success">Correta</span>
+                    }
+                </li>
+            }
+        </ul>
+
+        <div class="d-flex justify-content-end mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <span class="material-icons align-middle">edit</span>
+                Editar
+            </a>
+        </div>
+    </div>
+</div>
