@@ -5,64 +5,71 @@
     ViewBag.Titulo = "Visualização de Matérias";
 }
 
-<div class="d-grid d-lg-flex flex-wrap gap-2 align-items-center">
-    <a class="btn btn-primary px-5" asp-action="Create">
-        <i class="bi bi-plus"></i>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@ViewBag.Titulo</h2>
+    <a class="btn btn-primary" asp-action="Create">
+        <span class="material-icons align-middle">add</span>
         Cadastrar Nova
     </a>
 </div>
 
 <hr />
 
-<div class="d-flex flex-wrap gap-2">
-    @foreach (var subject in Model.Subjects)
-    {
-        <div class="col-12 col-md-3 coluna-card">
-            <a asp-action="Details" asp-route-id="@subject.Id" class="text-decoration-none">
-                <div class="card border-0 hover-shadow" style="height: 235px; cursor: pointer;">
+<div class="row d-none d-md-flex fw-bold border-bottom pb-2 mb-2">
+    <div class="col-md-4">Nome</div>
+    <div class="col-md-3">Disciplina</div>
+    <div class="col-md-2">Série</div>
+    <div class="col-md-1">Qtd. Questões</div>
+    <div class="col-md-2 text-end">Ações</div>
+</div>
+
+@foreach (var subject in Model.Subjects)
+{
+    <div class="row border-bottom py-2 align-items-center g-2 flex-md-nowrap">
+
+        <div class="col-12 d-md-none">
+            <a asp-action="Details" asp-route-id="@subject.Id" class="text-decoration-none text-dark">
+                <div class="card hover-shadow" style="cursor: pointer;">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-baseline mb-2">
-                            <h5 class="card-title">@subject.Name</h5>
-                            <span class="badge rounded-pill text-bg-secondary px-3 py-2">@subject.GradeLevel</span>
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5 class="card-title mb-0">@subject.Name</h5>
+                            <span class="badge rounded-pill text-bg-secondary">@subject.GradeLevel</span>
                         </div>
+                        <p class="mb-1"><strong>Disciplina:</strong> @subject.DisciplineName</p>
+                        <p class="mb-1"><strong>Questões:</strong> @subject.QuestionCount</p>
 
-                        <p class="card-text mb-1"><span class="fw-semibold">Disciplina:</span> @subject.DisciplineName</p>
-                        <p class="card-text mb-1"><span class="fw-semibold">Questões:</span> @subject.QuestionCount</p>
-
-                    </div>
-
-                    <div class="card-footer bg-transparent border-0">
-                        <span class="d-flex gap-1 justify-content-end">
-                            <a title="Editar" asp-action="Edit" asp-route-id="@subject.Id"
-                               class="btn btn-primary rounded-circle opcao-card"
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a asp-action="Edit" asp-route-id="@subject.Id"
+                               class="btn btn-icon btn-outline-primary"
+                               title="Editar"
                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil"></i>
+                                <span class="material-icons">edit</span>
                             </a>
-
-                            <a title="Excluir" asp-action="Delete" asp-route-id="@subject.Id"
-                               class="btn btn-danger rounded-circle opcao-card"
+                            <a asp-action="Delete" asp-route-id="@subject.Id"
+                               class="btn btn-icon btn-outline-danger"
+                               title="Excluir"
                                onclick="event.stopPropagation()">
-                                <i class="bi bi-trash"></i>
+                                <span class="material-icons">delete</span>
                             </a>
-                        </span>
+                        </div>
                     </div>
                 </div>
             </a>
         </div>
-    }
-</div>
 
-<style>
-    .hover-shadow:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        transition: box-shadow 0.3s ease;
-    }
-
-    .opcao-card {
-        width: 2.5rem;
-        height: 2.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-</style>
+        <div class="d-none d-md-flex col-md-4 align-items-center">@subject.Name</div>
+        <div class="d-none d-md-flex col-md-3 align-items-center">@subject.DisciplineName</div>
+        <div class="d-none d-md-flex col-md-2 align-items-center">@subject.GradeLevel</div>
+        <div class="d-none d-md-flex col-md-1 align-items-center">@subject.QuestionCount</div>
+        <div class="d-none d-md-flex col-md-2 justify-content-end gap-2">
+            <a asp-action="Edit" asp-route-id="@subject.Id" class="btn btn-icon btn-outline-primary" title="Editar">
+                <span class="material-icons">edit</span>
+            </a>
+            <a asp-action="Delete" asp-route-id="@subject.Id" class="btn btn-icon btn-outline-danger" title="Excluir">
+                <span class="material-icons">delete</span>
+            </a>
+        </div>
+    </div>
+}

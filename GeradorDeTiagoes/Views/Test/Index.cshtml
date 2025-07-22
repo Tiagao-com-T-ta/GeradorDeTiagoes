@@ -5,51 +5,76 @@
     ViewBag.Titulo = "Visualização de Testes";
 }
 
-<div class="d-grid d-lg-flex flex-wrap gap-2 align-items-center">
-    <a class="btn btn-primary px-5" asp-action="Create">
-        <i class="bi bi-plus"></i>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@ViewBag.Titulo</h2>
+    <a class="btn btn-primary" asp-action="Create">
+        <span class="material-icons align-middle">add</span>
         Gerar Novo Teste
     </a>
 </div>
 
 <hr />
 
-<div class="d-flex flex-wrap gap-2">
-    @foreach (var test in Model.Tests)
-    {
-        <div class="col-12 col-md-3 coluna-card">
-            <div class="card border-0" style="height: 235px;">
+<div class="row d-none d-md-flex fw-bold border-bottom pb-2 mb-2">
+    <div class="col-md-4">Título</div>
+    <div class="col-md-2">Disciplina</div>
+    <div class="col-md-2">Matéria</div>
+    <div class="col-md-2">Questões</div>
+    <div class="col-md-2 text-end">Ações</div>
+</div>
+
+@foreach (var test in Model.Tests)
+{
+    <div class="row border-bottom py-2 align-items-center g-2 flex-md-nowrap">
+
+        <div class="col-12 d-md-none">
+            <div class="card hover-shadow" style="cursor: default;">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-baseline mb-2">
-                        <h5 class="card-title">@test.Title</h5>
-                        <span class="badge rounded-pill text-bg-secondary px-3 py-2">@test.GradeLevel</span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <h5 class="card-title mb-0">@test.Title</h5>
+                        <span class="badge rounded-pill text-bg-secondary">@test.GradeLevel</span>
                     </div>
+                    <p class="mb-1"><strong>Disciplina:</strong> @test.DisciplineName</p>
+                    <p class="mb-1"><strong>Matéria:</strong> @(test.IsRecovery ? "Prova de Recuperação" : test.SubjectName)</p>
+                    <p class="mb-1"><strong>Questões:</strong> @test.QuestionsInTest/@test.QuestionCount</p>
 
-                    <p class="card-text mb-1"><span class="fw-semibold">Disciplina:</span> @test.DisciplineName</p>
-                    <p class="card-text mb-1"><span class="fw-semibold">Matéria:</span> @(test.IsRecovery ? "Prova de Recuperação" : test.SubjectName)</p>
-                    <p class="card-text mb-1"><span class="fw-semibold">Questões:</span> @test.QuestionsInTest/@test.QuestionCount</p>
-                </div>
-
-                <div class="card-footer bg-transparent border-0">
-                    <span class="d-flex gap-1 justify-content-end">
-                        <a title="Detalhes" asp-action="Details" asp-route-id="@test.Id" class="btn btn-secondary rounded-circle opcao-card">
-                            <i class="bi bi-eye"></i>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <a asp-action="Details" asp-route-id="@test.Id" class="btn btn-icon btn-outline-secondary" title="Detalhes" onclick="event.stopPropagation()">
+                            <span class="material-icons">visibility</span>
                         </a>
-
-                        <a title="Duplicar" asp-action="Duplicate" asp-route-id="@test.Id" class="btn btn-info rounded-circle opcao-card">
-                            <i class="bi bi-files"></i>
+                        <a asp-action="Duplicate" asp-route-id="@test.Id" class="btn btn-icon btn-outline-info" title="Duplicar" onclick="event.stopPropagation()">
+                            <span class="material-icons">content_copy</span>
                         </a>
-
-                        <a title="Gerar PDF" asp-action="GeneratePdf" asp-route-id="@test.Id" class="btn btn-success rounded-circle opcao-card">
-                            <i class="bi bi-file-earmark-pdf"></i>
+                        <a asp-action="GeneratePdf" asp-route-id="@test.Id" class="btn btn-icon btn-outline-success" title="Gerar PDF" onclick="event.stopPropagation()">
+                            <span class="material-icons">picture_as_pdf</span>
                         </a>
-
-                        <a title="Excluir" asp-action="Delete" asp-route-id="@test.Id" class="btn btn-danger rounded-circle opcao-card">
-                            <i class="bi bi-trash"></i>
+                        <a asp-action="Delete" asp-route-id="@test.Id" class="btn btn-icon btn-outline-danger" title="Excluir" onclick="event.stopPropagation()">
+                            <span class="material-icons">delete</span>
                         </a>
-                    </span>
+                    </div>
                 </div>
             </div>
         </div>
-    }
-</div>
+
+        <div class="d-none d-md-flex col-md-4 align-items-center">@test.Title</div>
+        <div class="d-none d-md-flex col-md-2 align-items-center">@test.DisciplineName</div>
+        <div class="d-none d-md-flex col-md-2 align-items-center">@(test.IsRecovery ? "Prova de Recuperação" : test.SubjectName)</div>
+        <div class="d-none d-md-flex col-md-2 align-items-center">@test.QuestionsInTest/@test.QuestionCount</div>
+        <div class="d-none d-md-flex col-md-2 justify-content-end gap-2">
+            <a asp-action="Details" asp-route-id="@test.Id" class="btn btn-icon btn-outline-secondary" title="Detalhes">
+                <span class="material-icons">visibility</span>
+            </a>
+            <a asp-action="Duplicate" asp-route-id="@test.Id" class="btn btn-icon btn-outline-info" title="Duplicar">
+                <span class="material-icons">content_copy</span>
+            </a>
+            <a asp-action="GeneratePdf" asp-route-id="@test.Id" class="btn btn-icon btn-outline-success" title="Gerar PDF">
+                <span class="material-icons">picture_as_pdf</span>
+            </a>
+            <a asp-action="Delete" asp-route-id="@test.Id" class="btn btn-icon btn-outline-danger" title="Excluir">
+                <span class="material-icons">delete</span>
+            </a>
+        </div>
+    </div>
+}

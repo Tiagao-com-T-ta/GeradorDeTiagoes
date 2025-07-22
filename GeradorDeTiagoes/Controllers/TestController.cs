@@ -101,8 +101,6 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                     return View(viewModel);
                 }
             }
-
-            // Obter questões disponíveis - erro quando não tem questão, adicionar validação
             var availableQuestions = viewModel.IsRecovery
                 ? questionRepository.GetAllByDiscipline(viewModel.DisciplineId)
                 : questionRepository.GetAllBySubject(viewModel.SubjectId.Value);
@@ -116,7 +114,6 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 return View(viewModel);
             }
 
-            // Criar teste com questões aleatórias - ainda não testado
             var test = viewModel.ToEntity();
             var random = new Random();
             test.Questions = availableQuestions
