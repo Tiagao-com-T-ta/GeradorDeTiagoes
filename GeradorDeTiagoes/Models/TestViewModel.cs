@@ -1,4 +1,5 @@
-﻿using GeradorDeTiagoes.Domain.Entities;
+﻿using GeradorDeTiagoes.Domain.DisciplineModule;
+using GeradorDeTiagoes.Domain.Entities;
 using GeradorDeTiagoes.WebApp.Extensions;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,13 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
         public int QuestionCount { get; set; }
 
         public bool IsRecovery { get; set; }
+
+        public static List<string> GradeLevels => new()
+        {
+            "1º Ano", "2º Ano", "3º Ano", "4º Ano", "5º Ano",
+            "6º Ano", "7º Ano", "8º Ano", "9º Ano",
+            "1ª Série EM", "2ª Série EM", "3ª Série EM"
+        };
     }
 
     public class TestDetailsViewModel
@@ -71,11 +79,36 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
     {
         public List<TestDetailsViewModel> Tests { get; set; }
 
-        public TestListViewModel(List<Test> tests)
+        public TestListViewModel(
+            List<Test> tests,
+            List<Discipline> disciplines,
+            List<Subject> subjects)
         {
-            Tests = tests.ConvertAll(t => t.ToDetailsViewModel());
+            Tests = tests.ConvertAll(t =>
+            {
+                var discipline = disciplines.FirstOrDefault(d => d.Id == t.DisciplineId);
+                var subject = t.SubjectId.HasValue
+                    ? subjects.FirstOrDefault(s => s.Id == t.SubjectId.Value)
+                    : null;
+
+                return new TestDetailsViewModel(
+                    t.Id,
+                    t.Title,
+                    t.GradeLevel,
+                    t.DisciplineId,
+                    discipline?.Name ?? "",
+                    t.SubjectId,
+                    subject?.Name ?? "",
+                    t.QuestionCount,
+                    t.IsRecovery,
+                    t.Questions?.Count ?? 0
+                );
+            });
         }
     }
+
+
+
 
     public class TestDuplicateViewModel : TestFormViewModel
     {
@@ -87,4 +120,5 @@ namespace GeradorDeTiagoes.WebApp.ViewModels
         public Guid TestId { get; set; }
         public bool IncludeAnswers { get; set; }
     }
+
 }

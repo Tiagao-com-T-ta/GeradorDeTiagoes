@@ -1,4 +1,5 @@
 ﻿using GeradorDeTiagoes.Domain.Entities;
+using GeradorDeTiagoes.Domain.QuestionModule;
 using GeradorDeTiagoes.WebApp.ViewModels;
 
 namespace GeradorDeTiagoes.WebApp.Extensions
@@ -59,6 +60,36 @@ namespace GeradorDeTiagoes.WebApp.Extensions
                 QuestionCount = test.QuestionCount,
                 IsRecovery = false
             };
+        }
+
+        public static Test ToEntityWithClonedQuestions(this TestDuplicateViewModel viewModel, Test originalTest)
+        {
+            var newTest = new Test(
+                viewModel.Title,
+                viewModel.GradeLevel,
+                viewModel.DisciplineId,
+                viewModel.IsRecovery ? null : viewModel.SubjectId,
+                viewModel.QuestionCount,
+                viewModel.IsRecovery
+            );
+
+            newTest.Questions = originalTest.Questions.Select(originalQ => new Question
+            {
+                Id = Guid.NewGuid(),
+                Statement = originalQ.Statement,
+                SubjectId = originalQ.SubjectId,
+                Subject = originalQ.Subject,
+                Alternatives = viewModel.IsRecovery
+                    ? new List<Alternative>()
+                    : originalQ.Alternatives.Select(a => new Alternative
+                    {
+                        Id = Guid.NewGuid(),
+                        Text = a.Text,
+                        IsCorrect = a.IsCorrect
+                    }).ToList()
+            }).ToList();
+
+            return newTest;
         }
     }
 }

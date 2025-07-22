@@ -9,6 +9,7 @@ using GeradorDeTiagoes.Structure.Orm.DisciplineModule;
 using GeradorDeTiagoes.Structure.Orm.QuestionModule;
 using GeradorDeTiagoes.Structure.Orm.TestModule;
 using GeradorDeTiagoes.WebApp.DependencyInjection;
+using GeradorDeTiagoes.WebApp.Validators;
 
 namespace GeradorDeTiagoes
 {
@@ -27,6 +28,7 @@ namespace GeradorDeTiagoes
             builder.Services.AddScoped<IRepository<Question>, QuestionRepositoryOrm>();
             builder.Services.AddScoped<IQuestionRepository, QuestionRepositoryOrm>();
             builder.Services.AddScoped<IPdfGenerator, PdfGenerator>();
+            builder.Services.AddScoped<TestValidator>();
 
             builder.Services.AddEntityFrameworkConfig(builder.Configuration);
             builder.Services.AddSerilogConfig(builder.Logging);

@@ -10,6 +10,7 @@ using GeradorDeTiagoes.WebApp.Extensions;
 using GeradorDeTiagoes.Domain.PdfModule;
 using GeradorDeTiagoes.Structure.Files.Shared;
 using GeradorDeTiagoes.Structure.Orm.Shared;
+using GeradorDeTiagoes.WebApp.Validators;
 
 namespace GeradorDeTiagoes.WebApp.Controllers
 {
@@ -22,6 +23,7 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         private readonly IRepository<Subject> subjectRepository;
         private readonly IQuestionRepository questionRepository;
         private readonly IPdfGenerator pdfGenerator;
+        private readonly TestValidator testValidator;
 
         public TestController(
             IRepository<Test> testRepository,
@@ -29,7 +31,8 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             IRepository<Subject> subjectRepository,
             IQuestionRepository questionRepository,
             IPdfGenerator pdfGenerator,
-            GeradorDeTiagoesDbContext dataContext)
+            GeradorDeTiagoesDbContext dataContext,
+            TestValidator testValidator)
         {
             this.dataContext = dataContext;
             this.testRepository = testRepository;
@@ -37,28 +40,17 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             this.subjectRepository = subjectRepository;
             this.questionRepository = questionRepository;
             this.pdfGenerator = pdfGenerator;
+            this.testValidator = testValidator;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var tests = testRepository.GetAllRegisters()
-                .Select(t => new Test
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    GradeLevel = t.GradeLevel,
-                    DisciplineId = t.DisciplineId,
-                    SubjectId = t.SubjectId,
-                    QuestionCount = t.QuestionCount,
-                    IsRecovery = t.IsRecovery,
-                    Discipline = disciplineRepository.GetRegisterById(t.DisciplineId),
-                    Subject = t.SubjectId.HasValue ?
-                        subjectRepository.GetRegisterById(t.SubjectId.Value) : null,
-                    Questions = t.Questions
-                }).ToList();
+            var tests = testRepository.GetAllRegisters().ToList();
+            var disciplines = disciplineRepository.GetAllRegisters().ToList();
+            var subjects = subjectRepository.GetAllRegisters().ToList();
 
-            var viewModel = new TestListViewModel(tests);
+            var viewModel = new TestListViewModel(tests, disciplines, subjects);
             return View(viewModel);
         }
 
@@ -66,7 +58,7 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         public IActionResult Create()
         {
             ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-            ViewBag.GradeLevels = GetGradeLevels();
+            ViewBag.GradeLevels = TestFormViewModel.GradeLevels;
             return View(new TestFormViewModel());
         }
 
@@ -75,43 +67,26 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         public IActionResult Create(TestFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
-            {
-                ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-                ViewBag.GradeLevels = GetGradeLevels();
-                return View(viewModel);
-            }
+                return ReloadViewWithErrors(viewModel);
 
-            if (testRepository.GetAllRegisters()
-                .Any(t => t.Title.Equals(viewModel.Title, StringComparison.OrdinalIgnoreCase)))
+            if (testValidator.TitleExists(viewModel.Title))
             {
                 ModelState.AddModelError("Title", "Já existe um teste com este título.");
-                ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-                ViewBag.GradeLevels = GetGradeLevels();
-                return View(viewModel);
+                return ReloadViewWithErrors(viewModel);
             }
 
-            if (!viewModel.IsRecovery && viewModel.SubjectId.HasValue)
-            {
-                var subject = subjectRepository.GetRegisterById(viewModel.SubjectId.Value);
-                if (subject == null || subject.DisciplineId != viewModel.DisciplineId)
-                {
-                    ModelState.AddModelError("SubjectId", "Matéria não pertence à disciplina selecionada.");
-                    ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-                    ViewBag.GradeLevels = GetGradeLevels();
-                    return View(viewModel);
-                }
-            }
-            var availableQuestions = viewModel.IsRecovery
-                ? questionRepository.GetAllByDiscipline(viewModel.DisciplineId)
-                : questionRepository.GetAllBySubject(viewModel.SubjectId.Value);
+            if (!viewModel.IsRecovery && !testValidator.ValidateSubject(viewModel, ModelState))
+                return ReloadViewWithErrors(viewModel);
+
+            var availableQuestions = testValidator.GetAvailableQuestions(viewModel, ModelState);
+            if (availableQuestions == null)
+                return ReloadViewWithErrors(viewModel);
 
             if (availableQuestions.Count < viewModel.QuestionCount)
             {
                 ModelState.AddModelError("QuestionCount",
                     $"Quantidade insuficiente de questões disponíveis ({availableQuestions.Count}).");
-                ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-                ViewBag.GradeLevels = GetGradeLevels();
-                return View(viewModel);
+                return ReloadViewWithErrors(viewModel);
             }
 
             var test = viewModel.ToEntity();
@@ -122,7 +97,6 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 .ToList();
 
             testRepository.Register(test);
-
             dataContext.SaveChanges();
 
             return RedirectToAction(nameof(Details), new { id = test.Id });
@@ -139,7 +113,7 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             viewModel.IsRecovery = false;
 
             ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-            ViewBag.GradeLevels = GetGradeLevels();
+            ViewBag.GradeLevels = TestFormViewModel.GradeLevels;
 
             if (viewModel.DisciplineId != Guid.Empty)
             {
@@ -159,48 +133,21 @@ namespace GeradorDeTiagoes.WebApp.Controllers
         public IActionResult Duplicate(Guid id, TestDuplicateViewModel viewModel)
         {
             if (!ModelState.IsValid)
-            {
-                ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-                ViewBag.GradeLevels = GetGradeLevels();
-                return View(viewModel);
-            }
+                return ReloadDuplicateView(viewModel);
 
-            if (testRepository.GetAllRegisters().Any(t => t.Title.Equals(viewModel.Title, StringComparison.OrdinalIgnoreCase)))
+            if (testValidator.TitleExists(viewModel.Title))
             {
                 ModelState.AddModelError("Title", "Já existe um teste com este título.");
-                ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
-                ViewBag.GradeLevels = GetGradeLevels();
-                return View(viewModel);
+                return ReloadDuplicateView(viewModel);
             }
 
             var originalTest = testRepository.GetRegisterById(id);
             if (originalTest == null)
                 return NotFound();
 
-            var newTest = viewModel.ToEntity();
-
-            newTest.Questions = originalTest.Questions.Select(originalQ =>
-            {
-                var clonnedQuestion = new Question
-                {
-                    Id = Guid.NewGuid(),
-                    Statement = originalQ.Statement,
-                    Subject =originalQ.Subject,
-                    SubjectId = originalQ.SubjectId,
-                    Alternatives = viewModel.IsRecovery
-                    ? new List<Alternative>()
-                    : originalQ.Alternatives.Select(a => new Alternative
-                    {
-                        Id = Guid.NewGuid(),
-                        Text = a.Text,
-                        IsCorrect = a.IsCorrect
-                    }).ToList()
-                };
-                return clonnedQuestion;
-            }).ToList();
+            var newTest = viewModel.ToEntityWithClonedQuestions(originalTest);
 
             testRepository.Register(newTest);
-
             dataContext.SaveChanges();
 
             return RedirectToAction(nameof(Details), new { id = newTest.Id });
@@ -261,16 +208,6 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             return File(pdfBytes, "application/pdf", $"{test.Title}{(gabarito ? "_Gabarito" : "")}.pdf");
         }
 
-        private List<string> GetGradeLevels()
-        {
-            return new List<string>
-            {
-                "1º Ano", "2º Ano", "3º Ano", "4º Ano", "5º Ano",
-                "6º Ano", "7º Ano", "8º Ano", "9º Ano",
-                "1ª Série EM", "2ª Série EM", "3ª Série EM"
-            };
-        }
-
         [HttpGet("subjects/{disciplineId:guid}")]
         public IActionResult GetSubjectsByDiscipline(Guid disciplineId)
         {
@@ -280,6 +217,29 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 .ToList();
 
             return Json(subjects);
+        }
+        private IActionResult ReloadViewWithErrors(TestFormViewModel viewModel)
+        {
+            ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
+            ViewBag.GradeLevels = TestFormViewModel.GradeLevels;
+            return View(viewModel);
+        }
+
+        private IActionResult ReloadDuplicateView(TestDuplicateViewModel viewModel)
+        {
+            ViewBag.Disciplines = disciplineRepository.GetAllRegisters();
+            ViewBag.GradeLevels = TestFormViewModel.GradeLevels;
+
+            if (viewModel.DisciplineId != Guid.Empty)
+            {
+                var subjects = subjectRepository.GetAllRegisters()
+                    .Where(s => s.DisciplineId == viewModel.DisciplineId)
+                    .ToList();
+
+                ViewBag.Subjects = subjects;
+            }
+
+            return View(viewModel);
         }
     }
 }
