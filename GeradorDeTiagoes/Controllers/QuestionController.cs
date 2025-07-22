@@ -245,16 +245,6 @@ namespace GeradorDeTiagoes.WebApp.Controllers
             }
         }
 
-        private bool ValidateAlternatives(System.Collections.Generic.List<AlternativeViewModel> alternatives)
-        {
-            if (alternatives == null)
-                return false;
-
-            var correctCount = alternatives.Count(a => a.IsCorrect);
-            var totalCount = alternatives.Count;
-
-            return totalCount >= 2 && totalCount <= 4 && correctCount == 1;
-        }
 
         [HttpGet("GetSubjectsByDiscipline")]
         public IActionResult GetSubjectsByDiscipline(Guid disciplineId)
@@ -265,6 +255,16 @@ namespace GeradorDeTiagoes.WebApp.Controllers
                 .ToList();
 
             return Json(subjects);
+        }
+        private bool ValidateAlternatives(List<AlternativeViewModel> alternatives)
+        {
+            if (alternatives == null)
+                return false;
+
+            var correctCount = alternatives.Count(a => a.IsCorrect);
+            var totalCount = alternatives.Count;
+
+            return totalCount >= 2 && totalCount <= 4 && correctCount == 1;
         }
 
     }
