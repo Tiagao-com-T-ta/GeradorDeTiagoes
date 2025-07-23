@@ -62,16 +62,17 @@
             <ol class="ps-3">
                 @foreach (var question in Model.Questions)
                 {
-                    <li class="mb-3">
-                        <div class="fw-semibold mb-1">@question.Statement</div>
-                        <ul class="list-unstyled ps-3">
+                    <li class="mb-4">
+                        <div class="fw-semibold mb-2">@question.Statement</div>
+
+                        <ul class="list-group">
                             @foreach (var alt in question.Alternatives)
                             {
-                                <li class="mb-1">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span>@alt.Text</span>
                                     @if (alt.IsCorrect)
                                     {
-                                        <span class="badge bg-success ms-2">Correta</span>
+                                        <span class="badge bg-success">Correta</span>
                                     }
                                 </li>
                             }

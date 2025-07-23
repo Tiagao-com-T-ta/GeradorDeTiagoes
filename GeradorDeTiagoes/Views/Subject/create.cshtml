@@ -4,12 +4,6 @@
 @{
     ViewBag.Titulo = "Cadastro de Matéria";
 }
-@{
-    var isDisciplineListNull = Model.Disciplines == null;
-    var disciplineCount = Model.Disciplines?.Count() ?? 0;
-}
-<p>Disciplinas nulas? @isDisciplineListNull</p>
-<p>Qtd disciplinas: @disciplineCount</p>
 <hr />
 <div class="row justify-content-center my-5">
     <div class="col-md-8">
